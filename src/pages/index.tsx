@@ -11,6 +11,7 @@ import {
 } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
+import { Textarea } from "~/components/ui/textarea";
 import {
   Avatar,
   AvatarFallback,
@@ -37,6 +38,9 @@ interface ActivityPostProps {
   numberOfComments: number,
   interactions: any[],
 }
+interface CreatePostProps{
+  user: {name: string},
+}
 const ActivityPost : React.FC <ActivityPostProps> = ({title, createdAt, content, user, numberOfComments}) =>{
   return (
     <Card className="w-fit min-w-[40rem] max-w-sm h-fit bg-slate-100 p-2 flex flex-col">
@@ -62,6 +66,39 @@ const ActivityPost : React.FC <ActivityPostProps> = ({title, createdAt, content,
       </Card>
 );
 } 
+const CreatePost : React.FC <CreatePostProps> = ({user}) =>{
+  return (
+    <Card className="min-w-[30rem] w-fit max-w-xl h-fit bg-slate-100 p-2 flex flex-col">
+    <CardHeader>    
+      <div className="flex flex-column justify-between gap-2 items-center">
+        <div className="flex flex-column items-center">
+        <Avatar>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
+        </Avatar>
+        <p className="p-2">{user.name}</p>
+        </div>
+        <Select>
+              <SelectTrigger className="w-[10rem] bg-slate-100" id="typeOfPost">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent className=" bg-slate-100">
+                <SelectItem value="post">Post</SelectItem>
+                <SelectItem value="event">Event</SelectItem>
+                <SelectItem value="form">Form</SelectItem>
+              </SelectContent>
+            </Select>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <Textarea placeholder="What's on your mind?"className="bg-slate-100 h-[15rem] resize-none">
+      </Textarea>
+    </CardContent>
+    <CardFooter>
+      <Button variant="default" className="w-full">Submit</Button>
+    </CardFooter>
+    </Card>
+  )
+}
 export default function Home() {
     const post1 = {
       type: "POST",
@@ -76,28 +113,13 @@ export default function Home() {
       numberOfComments: 2,
       interactions: [],
     }satisfies ActivityPostProps
+    const post2 ={
+      user: {name: "Wach00nia"}
+    } satisfies CreatePostProps
   return (
       <>
       <div className="flex justify-center p-10">
-      <Card className="min-w-[30rem] w-fit max-w-xl h-fit bg-slate-100 p-2 flex flex-col">
-      <CardHeader>    
-        <div className="flex flex-column justify-between gap-2 items-center">
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
-          </Avatar>
-          <Select>
-                <SelectTrigger className="w-[10rem]" id="framework">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="post">Post</SelectItem>
-                  <SelectItem value="event">Event</SelectItem>
-                  <SelectItem value="form">Form</SelectItem>
-                </SelectContent>
-              </Select>
-        </div>
-      </CardHeader>
-      </Card>
+      <CreatePost {...post2}/>
       </div>
       </>
   );
