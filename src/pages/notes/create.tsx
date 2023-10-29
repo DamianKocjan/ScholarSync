@@ -15,6 +15,13 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
 import { useForm } from "~/hooks/use-form";
 import { createNoteSchema } from "~/schemas/note";
@@ -217,32 +224,63 @@ function NoteSection({
           opacity: isDragging ? 0.5 : 1,
         }}
       >
-        <div className="absolute right-0 top-0 space-x-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => handleRemoveSection(index)}
-          >
-            <LucideTrash2 className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center justify-between pt-6">
+          <FormField
+            control={control}
+            name={`sections.${index}.type`}
+            render={({ field }) => (
+              <FormItem>
+                {/* <FormLabel>Section type</FormLabel> */}
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Select type of section" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="TEXT">Text</SelectItem>
+                    <SelectItem value="QUIZ">Quiz</SelectItem>
+                    <SelectItem value="IMAGE">Image</SelectItem>
+                    <SelectItem value="VIDEO">Video</SelectItem>
+                    <SelectItem value="AUDIO">Audio</SelectItem>
+                    <SelectItem value="FILE">File</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="cursor-move"
-            ref={ref}
-          >
-            <LucideGripVertical className="h-4 w-4" />
-          </Button>
+          <div className="space-x-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => handleRemoveSection(index)}
+            >
+              <LucideTrash2 className="h-4 w-4" />
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="cursor-move"
+              ref={ref}
+            >
+              <LucideGripVertical className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         <FormField
           control={control}
           name={`sections.${index}.subtitle`}
           render={({ field }) => (
-            <FormItem className="pt-8">
+            <FormItem>
               <FormLabel>Subtitle</FormLabel>
               <FormControl>
                 <Input placeholder="Note subtitle" {...field} />
