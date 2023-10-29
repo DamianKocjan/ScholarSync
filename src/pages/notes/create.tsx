@@ -1,7 +1,9 @@
 import { LucideGripVertical, LucideTrash2 } from "lucide-react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useDrag, useDrop } from "react-dnd";
 import { useFieldArray, useFormContext } from "react-hook-form";
+
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -23,6 +25,7 @@ const ItemTypes = {
 };
 
 export default function NoteCreate() {
+  const router = useRouter();
   const form = useForm({
     schema: createNoteSchema,
     defaultValues: {
@@ -31,6 +34,7 @@ export default function NoteCreate() {
       sections: [
         {
           type: "TEXT",
+          index: 0,
           subtitle: "",
           content: "",
         },
@@ -45,14 +49,21 @@ export default function NoteCreate() {
   const appendSectionToNote = () => {
     sections.append({
       type: "TEXT",
+      index: sections.fields.length,
       subtitle: "",
       content: "",
-      index: sections.fields.length,
+    });
+  };
+
+  const updateIndexes = () => {
+    sections.fields.forEach((_field, index) => {
+      form.setValue(`sections.${index}.index`, index);
     });
   };
 
   const moveSection = (fromIndex: number, toIndex: number) => {
     sections.move(fromIndex, toIndex);
+    updateIndexes();
   };
 
   const removeSection = (index: number) => {
@@ -61,21 +72,29 @@ export default function NoteCreate() {
     }
 
     sections.remove(index);
+    updateIndexes();
   };
 
-  const {} = api.note.create.useMutation();
+  const { mutateAsync } = api.note.create.useMutation();
+
+  const createNote = form.handleSubmit(async (values) => {
+    try {
+      const { id } = await mutateAsync(values);
+      await router.push(`/notes/${id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
   return (
     <>
       <Head>
+        {/* TODO: SEO */}
         <title>Create note</title>
       </Head>
       <main className="flex flex-col items-center">
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(console.log)}
-            className="w-2/3 space-y-6"
-          >
+          <form onSubmit={createNote} className="w-2/3 space-y-6">
             {sections.fields.map((field, index) => {
               if (index === 0) {
                 return (
