@@ -6,25 +6,179 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
 }
+model Activity {
+    id        String   @id @default(cuid())
+    type      String
+    createdAt DateTime @default(now())
+}
+
+enum Condition {
+    NEW
+    USED
+    UNKNOWN
+}
+
+model Attachment {
+    id     String  @id @default(cuid())
+    oferts Ofert[]
+}
+
+model Ofert {
+    id               String        @id @default(cuid())
+    title            String
+    description      String
+    price            Decimal       @db.Decimal(10, 2)
+    condition        Condition
+    image            Attachment    @relation(fields: [imageId], references: [id], onDelete: Restrict)
+    imageId          String
+    category         String
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId           String
+    comments         Comment[]
+    numberOfComments Int           @default(0)
+    // TODO: precalculate number of each interactions (eg. 10 likes, 5 dislikes, 3 love, etc)
+    interactions     Interaction[]
+}
 
 model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
+    id               String        @id @default(cuid())
+    title            String
+    content          String
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId           String
+    comments         Comment[]
+    numberOfComments Int           @default(0)
+    // TODO: precalculate number of each interactions (eg. 10 likes, 5 dislikes, 3 love, etc)
+    interactions     Interaction[]
 }
+
+model Event {
+    id                String              @id @default(cuid())
+    title             String
+    description       String
+    from              DateTime
+    to                DateTime
+    location          String
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId            String
+    interestedInEvent InterestedInEvent[]
+    comments          Comment[]
+    numberOfComments  Int                 @default(0)
+    interactions      Interaction[]
+}
+
+model InterestedInEvent {
+    id      String @id @default(cuid())
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId  String
+    event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    eventId String
+}
+
+model Poll {
+    id               String        @id @default(cuid())
+    title            String
+    description      String
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId           String
+    options          Option[]
+    comments         Comment[]
+    numberOfComments Int           @default(0)
+    // TODO: precalculate number of each interactions (eg. 10 likes, 5 dislikes, 3 love, etc)
+    interactions     Interaction[]
+}
+
+model Option {
+    id     String @id @default(cuid())
+    title  String
+    poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+    pollId String
+    votes  Vote[]
+}
+
+model Vote {
+    id       String @id @default(cuid())
+    user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId   String
+    option   Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+    optionId String
+
+    @@unique([userId, optionId])
+}
+
+// TODO: nested comments
+model Comment {
+    id           String        @id @default(cuid())
+    content      String
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId       String
+    post         Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId       String?
+    ofert        Ofert?        @relation(fields: [ofertId], references: [id], onDelete: Cascade)
+    ofertId      String?
+    event        Event?        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    eventId      String?
+    poll         Poll?         @relation(fields: [pollId], references: [id], onDelete: Cascade)
+    pollId       String?
+    // TODO: precalculate number of each interactions (eg. 10 likes, 5 dislikes, 3 love, etc)
+    interactions Interaction[]
+}
+
+enum InteractionType {
+    LIKE
+    HAHA
+    SAD
+    ANGRY
+    LOVE
+    WOW
+}
+
+enum InteractionModel {
+    POST
+    OFERT
+    COMMENT
+    EVENT
+    POLL
+}
+
+model Interaction {
+    id        String           @id @default(cuid())
+    type      InteractionType
+    model     InteractionModel
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+    user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    post      Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId    String?
+    ofert     Ofert?           @relation(fields: [ofertId], references: [id], onDelete: Cascade)
+    ofertId   String?
+    event     Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    eventId   String?
+    poll      Poll?            @relation(fields: [pollId], references: [id], onDelete: Cascade)
+    pollId    String?
+    comment   Comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    commentId String?
+    
+}
+
 
 // Necessary for Next auth
 model Account {
@@ -54,14 +208,21 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+    id                 String              @id @default(cuid())
+    name               String?
+    email              String?             @unique
+    emailVerified      DateTime?
+    image              String?
+    accounts           Account[]
+    sessions           Session[]
+    oferts             Ofert[]
+    posts              Post[]
+    comments           Comment[]
+    interactions       Interaction[]
+    events             Event[]
+    interestedInEvents InterestedInEvent[]
+    polls              Poll[]
+    votes              Vote[]
 }
 
 model VerificationToken {
