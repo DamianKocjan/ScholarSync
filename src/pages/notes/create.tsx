@@ -1,10 +1,12 @@
-import { LucideGripVertical, LucideTrash2 } from "lucide-react";
+import { LucideGripVertical, LucideTrash2, LucideX } from "lucide-react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useDrag, useDrop } from "react-dnd";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Checkbox } from "~/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -195,7 +197,15 @@ function NoteSection({
   handleMoveSection,
   handleRemoveSection,
 }: NoteSectionProps) {
-  const { control } = useFormContext();
+  const { control, getValues } = useFormContext();
+
+  const type = getValues(`sections.${index}.type`) as
+    | "TEXT"
+    | "IMAGE"
+    | "VIDEO"
+    | "AUDIO"
+    | "FILE"
+    | "QUIZ";
 
   const [{ isDragging }, ref, preview] = useDrag({
     type: ItemTypes.SECTION,
@@ -233,7 +243,7 @@ function NoteSection({
                 {/* <FormLabel>Section type</FormLabel> */}
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={field.value ?? "TEXT"}
                 >
                   <FormControl>
                     <SelectTrigger className="w-40">
@@ -306,6 +316,18 @@ function NoteSection({
             </FormItem>
           )}
         />
+
+        {type === "AUDIO" ? (
+          <AudioSectionForm index={index} />
+        ) : type === "FILE" ? (
+          <FileSectionForm index={index} />
+        ) : type === "IMAGE" ? (
+          <ImageSectionForm index={index} />
+        ) : type === "QUIZ" ? (
+          <QuizSectionForm index={index} />
+        ) : type === "VIDEO" ? (
+          <VideoSectionForm index={index} />
+        ) : null}
       </div>
 
       {isLast ? (
@@ -318,5 +340,228 @@ function NoteSection({
         </Button>
       ) : null}
     </>
+  );
+}
+
+type AudioSectionFormProps = {
+  index: number;
+};
+
+function AudioSectionForm({ index }: AudioSectionFormProps) {
+  const { control } = useFormContext();
+
+  return (
+    <FormField
+      control={control}
+      name={`sections.${index}.file`}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Audio</FormLabel>
+          <FormControl>
+            <>
+              <Input
+                type="file"
+                placeholder="Audio file"
+                accept="audio/mp3"
+                {...field}
+              />
+              {/* TODO: Maybe someone else gonna do it */}
+              {/* {field.value ? (
+                  <audio controls className="mb-4 w-full">
+                    <source type="audio/mp3" src={field.value} />
+                    Your browser does not support the audio element.
+                  </audio>
+                ) : null} */}
+            </>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+type FileSectionFormProps = {
+  index: number;
+};
+
+function FileSectionForm({ index }: FileSectionFormProps) {
+  const { control } = useFormContext();
+
+  return (
+    <FormField
+      control={control}
+      name={`sections.${index}.file`}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>File</FormLabel>
+          <FormControl>
+            <Input
+              type="file"
+              placeholder="File"
+              accept="application/pdf"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+type ImageSectionFormProps = {
+  index: number;
+};
+
+function ImageSectionForm({ index }: ImageSectionFormProps) {
+  const { control } = useFormContext();
+
+  return (
+    <FormField
+      control={control}
+      name={`sections.${index}.file`}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Image</FormLabel>
+          <FormControl>
+            <>
+              <Input
+                type="file"
+                placeholder="Image file"
+                accept="image/*"
+                {...field}
+              />
+              {field.value ? (
+                <img src={field.value} className="mb-4 w-full" />
+              ) : null}
+            </>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+type QuizSectionFormProps = {
+  index: number;
+};
+
+function QuizSectionForm({ index }: QuizSectionFormProps) {
+  const { control } = useFormContext();
+  const options = useFieldArray({
+    control: control,
+    name: `sections.${index}.quizAnswers`,
+  });
+
+  console.log(options.fields);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Quiz</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {options.fields.map((field, optionIndex) => (
+          <div className="space-y-6" key={field.id}>
+            <div className="flex items-center space-x-6">
+              <FormField
+                control={control}
+                name={`sections.${index}.quizAnswers.${optionIndex}.answer`}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Answer</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Answer" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => options.remove(optionIndex)}
+              >
+                <LucideX className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <FormField
+              control={control}
+              name={`sections.${index}.quizAnswers.${optionIndex}.isCorrect`}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Is correct</FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        ))}
+
+        <Button
+          type="button"
+          className="my-6 w-full"
+          onClick={() =>
+            options.append({
+              answer: "",
+              isCorrect: false,
+            })
+          }
+        >
+          Add option
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+type VideoSectionFormProps = {
+  index: number;
+};
+
+function VideoSectionForm({ index }: VideoSectionFormProps) {
+  const { control } = useFormContext();
+
+  return (
+    <FormField
+      control={control}
+      name={`sections.${index}.file`}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Video</FormLabel>
+          <FormControl>
+            <>
+              <Input
+                type="file"
+                placeholder="Video file"
+                accept="video/mp4"
+                {...field}
+              />
+              {/* TODO: Maybe someone else gonna do it */}
+              {/* {field.value ? (
+                  <video controls className="mb-4 w-full">
+                    <source type="audio/mp4" src={field.value} />
+                    Your browser does not support the audio element.
+                  </video>
+                ) : null} */}
+            </>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }
