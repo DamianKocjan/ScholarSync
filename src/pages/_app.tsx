@@ -5,7 +5,9 @@ import { Inter as FontSans } from "next/font/google";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
+import { MainNav } from "~/components/main-nav";
 import { ThemeProvider } from "~/components/theme-provider";
+import { UserNav } from "~/components/user-nav";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 
@@ -35,7 +37,18 @@ const MyApp: AppType<{ session: Session | null }> = ({
               fontSans.variable,
             )}
           >
-            <Component {...pageProps} />
+            <div className="border-b">
+              <div className="flex h-16 items-center px-4">
+                <MainNav className="mx-6" />
+                <div className="ml-auto flex items-center space-x-4">
+                  <UserNav />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 p-8 pt-6">
+              <Component {...pageProps} />
+            </div>
           </div>
         </DndProvider>
       </SessionProvider>
