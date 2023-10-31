@@ -1,3 +1,6 @@
+import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -12,6 +15,19 @@ import {
 } from "~/components/ui/dropdown-menu";
 
 export function UserNav() {
+  const { data: sessionData } = useSession();
+
+  if (!sessionData) {
+    return (
+      <Link
+        href=""
+        onClick={() => signIn("google")}
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        Login
+      </Link>
+    );
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,7 +64,7 @@ export function UserNav() {
           <DropdownMenuItem>New Team</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut()}>
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
