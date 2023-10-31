@@ -10,12 +10,10 @@ export function MainNav({
   const router = useRouter();
 
   const isActive = (pathname: string) => {
-    if (router.pathname.startsWith(pathname)) {
-      return true;
-    } else if (pathname.startsWith("/auth") && pathname === "/") {
-      return true;
+    if (pathname === "/") {
+      return router.pathname === pathname;
     }
-    return false;
+    return router.pathname.startsWith(pathname);
   };
 
   return (
