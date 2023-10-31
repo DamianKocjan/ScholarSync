@@ -19,7 +19,7 @@ interface CommentProps extends PComment {
 export const Comment: React.FC<CommentProps> = ({
   id,
   content,
-  updatedAt,
+  updatedAt,  
   createdAt,
   user,
 }) => {

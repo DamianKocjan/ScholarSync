@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Event, Ofert, Poll, Post } from "@prisma/client";
 import cuid from "cuid";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure, t } from "../trpc";
-import { createPresignedUrl, getSignredUrl } from "../utils/images";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createPresignedUrl, getSignredUrl } from "../../../utils/images";
 
-export const feedRouter = t.router({
+export const feedRouter = createTRPCRouter({
   get: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const content = await ctx.prisma.activity.findUnique({
+      const content = await ctx.db.activity.findUnique({
         where: {
           id: input.id,
         },
@@ -36,6 +37,7 @@ export const feedRouter = t.router({
 
       return {
         result: activity,
+        
       };
     }),
   getAll: protectedProcedure
@@ -51,7 +53,7 @@ export const feedRouter = t.router({
       const limit = input.limit ?? 50;
       const { cursor, exclude, type } = input;
 
-      const content = await ctx.prisma.activity.findMany({
+      const content = await ctx.db.activity.findMany({
         take: limit + 1,
         where: {
           id: {
@@ -70,7 +72,7 @@ export const feedRouter = t.router({
           let item;
 
           if (contentItem.type === "ofert") {
-            item = await ctx.prisma.ofert.findUnique({
+            item = await ctx.db.ofert.findUnique({
               where: { id: contentItem.id },
               include: {
                 user: true,
@@ -89,7 +91,7 @@ export const feedRouter = t.router({
               };
             }
           } else if (contentItem.type === "post") {
-            item = await ctx.prisma.post.findUnique({
+            item = await ctx.db.post.findUnique({
               where: { id: contentItem.id },
               include: {
                 user: true,
@@ -101,7 +103,7 @@ export const feedRouter = t.router({
               },
             });
           } else if (contentItem.type === "event") {
-            item = await ctx.prisma.event.findUnique({
+            item = await ctx.db.event.findUnique({
               where: { id: contentItem.id },
               include: {
                 user: true,
@@ -114,7 +116,7 @@ export const feedRouter = t.router({
               },
             });
           } else {
-            item = await ctx.prisma.poll.findUnique({
+            item = await ctx.db.poll.findUnique({
               where: { id: contentItem.id },
               include: {
                 user: true,
@@ -196,14 +198,14 @@ export const feedRouter = t.router({
           throw new Error("INVALID_DATA");
         }
 
-        await ctx.prisma.$transaction([
-          ctx.prisma.activity.create({
+        await ctx.db.$transaction([
+          ctx.db.activity.create({
             data: {
               id,
               type,
             },
           }),
-          ctx.prisma.poll.create({
+          ctx.db.poll.create({
             data: {
               id,
               title: data.poll.title,
@@ -228,14 +230,14 @@ export const feedRouter = t.router({
           throw new Error("INVALID_DATA");
         }
 
-        await ctx.prisma.$transaction([
-          ctx.prisma.activity.create({
+        await ctx.db.$transaction([
+          ctx.db.activity.create({
             data: {
               id,
               type,
             },
           }),
-          ctx.prisma.ofert.create({
+          ctx.db.ofert.create({
             data: {
               id,
               title: data.ofert.title,
@@ -269,14 +271,14 @@ export const feedRouter = t.router({
           throw new Error("INVALID_DATA");
         }
 
-        await ctx.prisma.$transaction([
-          ctx.prisma.activity.create({
+        await ctx.db.$transaction([
+          ctx.db.activity.create({
             data: {
               id,
               type,
             },
           }),
-          ctx.prisma.event.create({
+          ctx.db.event.create({
             data: {
               id,
               title: data.event.title,
@@ -297,14 +299,14 @@ export const feedRouter = t.router({
           throw new Error("INVALID_DATA");
         }
 
-        await ctx.prisma.$transaction([
-          ctx.prisma.activity.create({
+        await ctx.db.$transaction([
+          ctx.db.activity.create({
             data: {
               id,
               type,
             },
           }),
-          ctx.prisma.post.create({
+          ctx.db.post.create({
             data: {
               id,
               title: data.post.title,

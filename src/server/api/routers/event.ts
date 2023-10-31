@@ -1,7 +1,8 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure, t } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-export const eventRouter = t.router({
+export const eventRouter = createTRPCRouter({
   interestedIn: protectedProcedure
     .input(
       z.object({
@@ -10,7 +11,7 @@ export const eventRouter = t.router({
     )
     .mutation(async ({ ctx, input }) => {
       const polinterestedInEventlVotes =
-        await ctx.prisma.interestedInEvent.findMany({
+        await ctx.db.interestedInEvent.findMany({
           where: {
             event: {
               id: input.eventId,
@@ -22,7 +23,7 @@ export const eventRouter = t.router({
         });
 
       if (polinterestedInEventlVotes.length > 0) {
-        await ctx.prisma.interestedInEvent.deleteMany({
+        await ctx.db.interestedInEvent.deleteMany({
           where: {
             id: {
               in: polinterestedInEventlVotes.map((v) => v.id),
@@ -30,7 +31,7 @@ export const eventRouter = t.router({
           },
         });
       } else {
-        await ctx.prisma.interestedInEvent.create({
+        await ctx.db.interestedInEvent.create({
           data: {
             event: {
               connect: {
@@ -54,7 +55,7 @@ export const eventRouter = t.router({
     )
     .query(async ({ ctx, input }) => {
       const polinterestedInEventlVotes =
-        await ctx.prisma.interestedInEvent.findMany({
+        await ctx.db.interestedInEvent.findMany({
           where: {
             event: {
               id: input.eventId,
@@ -75,7 +76,7 @@ export const eventRouter = t.router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const events = await ctx.prisma.event.findMany({
+      const events = await ctx.db.event.findMany({
         where: {
           from: {
             gte: new Date(input.start),
@@ -110,7 +111,7 @@ export const eventRouter = t.router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.event.create({
+      await ctx.db.event.create({
         data: {
           title: input.title,
           description: input.description,
@@ -132,7 +133,7 @@ export const eventRouter = t.router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const event = await ctx.prisma.event.findUnique({
+      const event = await ctx.db.event.findUnique({
         where: {
           id: input.id,
         },

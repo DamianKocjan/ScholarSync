@@ -1,6 +1,6 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { Interaction } from "../../../types";
-import { protectedProcedure, t } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 const model = z.enum(["post", "ofert", "event", "poll", "comment"]);
 
@@ -21,7 +21,7 @@ const parseModelToType = (
   }
 };
 
-export const interactionRouter = t.router({
+export const interactionRouter = createTRPCRouter({
   get: protectedProcedure
     .input(
       z.object({
@@ -34,8 +34,8 @@ export const interactionRouter = t.router({
 
       // TODO: better naming?
       const [likes, hahas, sads, angries, loves, wows] =
-        await ctx.prisma.$transaction([
-          ctx.prisma.interaction.count({
+        await ctx.db.$transaction([
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -43,7 +43,7 @@ export const interactionRouter = t.router({
               type: "LIKE",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -51,7 +51,7 @@ export const interactionRouter = t.router({
               type: "HAHA",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -59,7 +59,7 @@ export const interactionRouter = t.router({
               type: "SAD",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -67,7 +67,7 @@ export const interactionRouter = t.router({
               type: "ANGRY",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -75,7 +75,7 @@ export const interactionRouter = t.router({
               type: "LOVE",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -86,7 +86,7 @@ export const interactionRouter = t.router({
         ]);
 
       const hasInteracted = ctx.session?.user
-        ? await ctx.prisma.interaction.findFirst({
+        ? await ctx.db.interaction.findFirst({
             where: {
               [model]: {
                 id: modelId,
@@ -101,7 +101,7 @@ export const interactionRouter = t.router({
           })
         : null;
 
-      const result: Interaction[] = [
+      const result: any[] = [
         {
           type: "LIKE",
           count: likes,
@@ -144,7 +144,7 @@ export const interactionRouter = t.router({
     .mutation(async ({ ctx, input }) => {
       const { model, modelId, type } = input;
 
-      const userInteractions = await ctx.prisma.interaction.findMany({
+      const userInteractions = await ctx.db.interaction.findMany({
         where: {
           [model]: {
             id: modelId,
@@ -157,7 +157,7 @@ export const interactionRouter = t.router({
       });
 
       if (userInteractions.length === 1 && userInteractions[0]!.type === type) {
-        await ctx.prisma.interaction.delete({
+        await ctx.db.interaction.delete({
           where: {
             id: userInteractions[0]!.id,
           },
@@ -166,7 +166,7 @@ export const interactionRouter = t.router({
       }
 
       if (userInteractions.length > 0) {
-        await ctx.prisma.interaction.deleteMany({
+        await ctx.db.interaction.deleteMany({
           where: {
             id: {
               in: userInteractions.map((i) => i.id),
@@ -175,7 +175,7 @@ export const interactionRouter = t.router({
         });
       }
 
-      await ctx.prisma.interaction.create({
+      await ctx.db.interaction.create({
         data: {
           model: parseModelToType(model),
           [model]: {
