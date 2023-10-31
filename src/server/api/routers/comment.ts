@@ -1,8 +1,9 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { authedProcedure, t } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-export const commentRouter = t.router({
-  getAll: authedProcedure
+export const commentRouter = createTRPCRouter({
+  getAll: protectedProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -15,7 +16,7 @@ export const commentRouter = t.router({
       const limit = input.limit ?? 50;
       const { cursor, model, modelId } = input;
 
-      const comments = await ctx.prisma.comment.findMany({
+      const comments = await ctx.db.comment.findMany({
         take: limit + 1,
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: {
@@ -40,7 +41,7 @@ export const commentRouter = t.router({
         nextCursor,
       };
     }),
-  create: authedProcedure
+  create: protectedProcedure
     .input(
       z.object({
         model: z.enum(["post", "ofert", "event", "poll"]),
@@ -51,8 +52,8 @@ export const commentRouter = t.router({
     .mutation(async ({ ctx, input }) => {
       const { model, modelId, content } = input;
 
-      await ctx.prisma.$transaction([
-        ctx.prisma.comment.create({
+      await ctx.db.$transaction([
+        ctx.db.comment.create({
           data: {
             content: content,
             [model]: {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Interaction } from "../../../types";
-import { authedProcedure, t } from "../trpc";
+import { protectedProcedure, t } from "../trpc";
 
 const model = z.enum(["post", "ofert", "event", "poll", "comment"]);
 
@@ -22,7 +22,7 @@ const parseModelToType = (
 };
 
 export const interactionRouter = t.router({
-  get: authedProcedure
+  get: protectedProcedure
     .input(
       z.object({
         model,
@@ -133,7 +133,7 @@ export const interactionRouter = t.router({
         hasInteracted,
       };
     }),
-  interact: authedProcedure
+  interact: protectedProcedure
     .input(
       z.object({
         model,

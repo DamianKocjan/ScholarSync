@@ -2,11 +2,11 @@
 import type { Event, Ofert, Poll, Post } from "@prisma/client";
 import cuid from "cuid";
 import { z } from "zod";
-import { authedProcedure, t } from "../trpc";
+import { protectedProcedure, t } from "../trpc";
 import { createPresignedUrl, getSignredUrl } from "../utils/images";
 
 export const feedRouter = t.router({
-  get: authedProcedure
+  get: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const content = await ctx.prisma.activity.findUnique({
@@ -38,7 +38,7 @@ export const feedRouter = t.router({
         result: activity,
       };
     }),
-  getAll: authedProcedure
+  getAll: protectedProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -146,7 +146,7 @@ export const feedRouter = t.router({
         nextCursor,
       };
     }),
-  create: authedProcedure
+  create: protectedProcedure
     .input(
       z.object({
         type: z.enum(["ofert", "post", "event", "poll"]),

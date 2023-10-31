@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { authedProcedure, t } from "../trpc";
+import { protectedProcedure, t } from "../trpc";
 
 export const eventRouter = t.router({
-  interestedIn: authedProcedure
+  interestedIn: protectedProcedure
     .input(
       z.object({
         eventId: z.string(),
@@ -46,7 +46,7 @@ export const eventRouter = t.router({
         });
       }
     }),
-  isInterestedIn: authedProcedure
+  isInterestedIn: protectedProcedure
     .input(
       z.object({
         eventId: z.string(),
@@ -67,7 +67,7 @@ export const eventRouter = t.router({
 
       return polinterestedInEventlVotes.length > 0;
     }),
-  calendar: authedProcedure
+  calendar: protectedProcedure
     .input(
       z.object({
         start: z.string(),
@@ -99,7 +99,7 @@ export const eventRouter = t.router({
         },
       }));
     }),
-  create: authedProcedure
+  create: protectedProcedure
     .input(
       z.object({
         title: z.string(),
@@ -125,7 +125,7 @@ export const eventRouter = t.router({
         },
       });
     }),
-  get: authedProcedure
+  get: protectedProcedure
     .input(
       z.object({
         id: z.string(),

@@ -1,10 +1,10 @@
 import { Ofert, User } from "@prisma/client";
 import { z } from "zod";
-import { authedProcedure, t } from "../trpc";
+import { protectedProcedure, t } from "../trpc";
 import { getSignredUrl } from "../utils/images";
 
 export const ofertRouter = t.router({
-  getAll: authedProcedure
+  getAll: protectedProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
