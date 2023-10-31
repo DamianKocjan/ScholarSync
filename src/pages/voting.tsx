@@ -4,7 +4,7 @@ export default await function Vote() {
         
         <div className="flex flex-col">
             <img src="https://cdn.discordapp.com/attachments/1117906889234198588/1169024143207960681/1.jpg" />
-            <h3>It's joever</h3>
+            <h3>It's</h3>
         </div>
 
     </div>);
