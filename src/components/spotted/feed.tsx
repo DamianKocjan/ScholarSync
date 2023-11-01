@@ -69,9 +69,9 @@ interface FeedProps {
             {data !== undefined &&
               data.pages.map((page) =>
                 page.items.map((item) => (
-                  <Activity
+                  <ActivityPost
                     key={item.id}
-                    {...(item as ActivityProps)}
+                    {...(item as ActivityPostProps)}
                     type={item.type as ActivityType}
                   />
                 ))

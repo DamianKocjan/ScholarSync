@@ -60,6 +60,10 @@ import { Toggle } from "@radix-ui/react-toggle";
 import { pollRouter } from "~/server/api/routers/poll";
 import { api } from "~/utils/api";
 import { useMemo } from "react";
+import { Decimal } from "@prisma/client/runtime/library";
+import { Attachment } from "aws-sdk/clients/ecs";
+import { NumberEight } from "phosphor-react";
+import { CreatePost } from "~/components/spotted/create-post";
 interface ActivityPostProps {
   type: "POST",
   id: string,
@@ -111,6 +115,61 @@ interface CommentPostProps{
   createdAt: Date,
   updatedAt: Date,
   user: {name: string}
+  userId: string,
+  interactions: any[]
+}
+interface OffertPostProps{
+  id: string,
+  title: string,
+  user: {name: string}
+  userId: string,
+  description: string,
+  createdAt: Date,
+  updatedAt: Date,
+  price: number,
+  condition: "NEW" | "USED" | "UNKNOWN" ,
+  image: string,
+  imageId: string,
+  category: string,
+  comments: any[],
+  numberOfComments: number,
+  interactions: any[],
+
+}
+const OffertPost: React.FC<OffertPostProps> = ({user, description, createdAt, title, price, condition, category, numberOfComments, comments,image,}) =>{
+  const DateFormatter = useFormatRelativeDate();
+  const [isOpen, setisOpen] = useState(false);
+  return(
+    <Card className="w-fit min-w-[40rem] max-w-sm h-fit bg-slate-100 p-2 mb-5 flex flex-col">
+    <CardHeader>
+      <div className="flex flex-column gap-2 items-center">
+        <Avatar>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+        </Avatar>
+        <div className="flex flex-col">
+          <SmallText>{user.name}</SmallText>
+          <SmallText>{DateFormatter(createdAt)}</SmallText>
+        </div>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <CardTitle className="text-xl"><H2>{title} - {price.toString()}</H2></CardTitle>
+      <MutedText>Category: {category} Condition {condition}</MutedText>
+      <p>{description}</p>
+        <img src={image} className="w-full mt-7 min-h-[10rem] max-h-[30rem]"/>
+    </CardContent>
+    <CardFooter className="flex justify-between">
+      <Button variant='outline'>Like</Button>
+      <Button variant='ghost' onClick={() => setisOpen(!isOpen)}>Comments {numberOfComments}</Button>
+    </CardFooter>
+    {isOpen ? <Card className="w-fit min-w-[38.7rem] justify-center max-w-sm h-fit bg-slate-100 p-2 mb-5 flex flex-col"> 
+      <CardTitle className="m-[1rem]">Comments</CardTitle>
+      {comments.map((comment, index) => (
+        <CommentPost {...comment} />
+      ))}
+    </Card> : <></>}
+  </Card>
+  )
 }
 const CommentPost: React.FC<CommentPostProps> = ({content, createdAt, user}) =>{
   const DateFormatter = useFormatRelativeDate();
@@ -256,40 +315,40 @@ const ActivityPost: React.FC<ActivityPostProps> = ({ title, comments, createdAt,
       </Card> : <></>}
     </Card>
   );
-}
-const CreatePost: React.FC<CreatePostProps> = ({ user }) => {
-  return (
-    <Card className="min-w-[40rem] w-fit max-w-xl h-fit bg-slate-100 p-2 mb-5 flex flex-col">
-      <CardHeader>
-        <div className="flex flex-column justify-between gap-2 items-center">
-          <div className="flex flex-column items-center">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            </Avatar>
-            <SmallText className="p-2">{user.name}</SmallText>
-          </div>
-          <Select>
-            <SelectTrigger className="w-[10rem] bg-slate-100" id="typeOfPost">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent className=" bg-slate-100">
-              <SelectItem value="post">Post</SelectItem>
-              <SelectItem value="event">Event</SelectItem>
-              <SelectItem value="form">Form</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Textarea placeholder="What's on your mind?" className="bg-slate-100 h-[15rem] resize-none">
-        </Textarea>
-      </CardContent>
-      <CardFooter>
-        <Button variant="default" className="w-full">Submit</Button>
-      </CardFooter>
-    </Card>
-  )
-}
+// const CreatePost: React.FC<CreatePostProps> = ({ user }) => {
+//   return (
+//     <Card className="min-w-[40rem] w-fit max-w-xl h-fit bg-slate-100 p-2 mb-5 flex flex-col">
+//       <CardHeader>
+//         <div className="flex flex-column justify-between gap-2 items-center">
+//           <div className="flex flex-column items-center">
+//             <Avatar>
+//               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+//             </Avatar>
+//             <SmallText className="p-2">{"sad"}</SmallText>
+//           </div>
+//           <Select>
+//             <SelectTrigger className="w-[10rem] bg-slate-100" id="typeOfPost">
+//               <SelectValue placeholder="Type" />
+//             </SelectTrigger>
+//             <SelectContent className=" bg-slate-100">
+//               <SelectItem value="post">Post</SelectItem>
+//               <SelectItem value="event">Event</SelectItem>
+//               <SelectItem value="form">Form</SelectItem>
+//               <SelectItem value="offert">Offert</SelectItem>
+//             </SelectContent>
+//           </Select>
+//         </div>
+//       </CardHeader>
+//       <CardContent>
+//         <Textarea placeholder="What's on your mind?" className="bg-slate-100 h-[15rem] resize-none">
+//         </Textarea>
+//       </CardContent>
+//       <CardFooter>
+//         <Button variant="default" className="w-full">Submit</Button>
+//       </CardFooter>
+//     </Card>
+//   )
+// }
 const EventPost: React.FC<EventPostProps> = ({ user, id, comments, createdAt, title, from, to, location, description, numberOfComments }) => {
   const DateFormatter = useFormatRelativeDate();
   const {
@@ -349,7 +408,7 @@ const EventPost: React.FC<EventPostProps> = ({ user, id, comments, createdAt, ti
       </Card> : <></>}
     </Card>
   )
-}
+}}
 export default function Home() {
   const post1 = {
     type: "POST",
@@ -396,11 +455,27 @@ export default function Home() {
     options: ["Civ 6", "It's fun to be a Polak", "Inscryption"],
     interactions: []
   } satisfies PollPostProps
+  const post5 = {
+    id: "3",
+    title: "Sprzedam opla",
+    user: {name: "Twój stary"},
+    userId: "78200",
+    description: "Sprzedam opla stan igła",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    price: 6969.2,
+    condition: "UNKNOWN",
+    image: "sad",
+    imageId: "231",
+    category: "motoryzacja",
+    comments: [],
+    numberOfComments: 2,
+    interactions: []
+  } satisfies OffertPostProps
   return (
     <>
       <div className="flex flex-col items-center justify-center p-10">
-        <PollPost {...post4} />
-
+          <CreatePost/>
       </div>
     </>
   );
