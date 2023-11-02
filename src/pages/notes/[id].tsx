@@ -7,8 +7,21 @@ import { useMemo, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { H1, H2, LargeText, Paragraph } from "~/components/ui/typography";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import {
+  H1,
+  H2,
+  LargeText,
+  MutedText,
+  Paragraph,
+} from "~/components/ui/typography";
 import { useToast } from "~/components/ui/use-toast";
+import { useFormatRelativeDate } from "~/hooks/use-format-relative-date";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 import { parseId } from "~/utils/parse-id";
@@ -19,6 +32,7 @@ export default function NoteDetail() {
   const id = router.query.id as string;
   const { data: sessionData } = useSession();
   const { toast } = useToast();
+  const formatter = useFormatRelativeDate();
 
   // TODO: SSR
   const { data, isLoading, isError, error } = api.note.get.useQuery(
@@ -107,6 +121,7 @@ export default function NoteDetail() {
                 <div className="flex space-x-6" key={section.id}>
                   <div className="w-1/3 space-y-6 border-r pr-6">
                     <H1>{data.title}</H1>
+
                     <Paragraph>{data.description}</Paragraph>
 
                     <div className="flex items-center gap-4">
@@ -152,6 +167,34 @@ export default function NoteDetail() {
                       <Share2 className="mr-2 h-4 w-4" />
                       Share
                     </Button>
+
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <MutedText>
+                            Created {formatter(data.createdAt)}.
+                          </MutedText>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Created {data.createdAt.toLocaleDateString()}.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    {data.updatedAt.getTime() !== data.createdAt.getTime() ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <MutedText>
+                              Updated {formatter(data.updatedAt)}.
+                            </MutedText>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Updated {data.updatedAt.toLocaleDateString()}.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : null}
                   </div>
                   <Section {...section} key={section.id} />
                 </div>
