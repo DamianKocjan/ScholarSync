@@ -33,7 +33,7 @@ import {
 // TODO: use `use-form` hook when it's gonna be merged into main
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm as _useForm, type UseFormProps } from "react-hook-form";
-import z, { type TypeOf, type ZodSchema } from "zod";
+import z, { array, type TypeOf, type ZodSchema } from "zod";
 import { Calendar } from "../ui/calendar";
 import { Input } from "../ui/input";
 
@@ -51,7 +51,34 @@ function useForm<T extends ZodSchema>({
     resolver: zodResolver(schema),
   });
 }
-
+const CreatePostSchema = z.union([
+  z.object({
+    title: z.string(),
+    description: z.string(),
+    from: z.string(),
+    to: z.string(),
+    location: z.string(),
+  }),
+  z.object({
+    title: z.string(),
+    description: z.string(),
+    price: z.number(),
+    category: z.string(),
+    condition: z.enum([
+      //@ts-ignore
+      z.literal("NEW"),
+      z.literal("USED"),
+      z.literal("UNKNOWN"),
+    ]),
+    image: z.string(),
+  }),
+  z.object({
+    title: z.string(),
+    description: z.string(),
+    options: z.array(z.string()),
+  }),
+  z.object({ title: z.string(), content: z.string() }),
+]);
 export const CreatePost: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -60,12 +87,11 @@ export const CreatePost: React.FC = () => {
     console.log(`You chose: ${selectedValue}`);
   };
   const form = useForm({
-    schema: z.object({ type: z.string() }),
+    schema: CreatePostSchema,
   });
 
-  const [elements1, setElements] = useState(["Option 1"]);
+  const [postType, setPostType] = useState("POST");
 
-  const postType = form.watch("type");
   return (
     <Form {...form}>
       <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-xl flex-col bg-slate-100 p-2">
@@ -80,94 +106,237 @@ export const CreatePost: React.FC = () => {
               </Avatar>
               <SmallText className="p-2">{"sad"}</SmallText>
             </div>
+            <Select
+              onValueChange={(V) => {
+                setPostType(V);
+              }}
+              defaultValue={postType ?? "POST"}
+            >
+              <FormControl>
+                <SelectTrigger className="w-40 bg-slate-100">
+                  <SelectValue placeholder="Select type of section" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent className="bg-slate-100">
+                <SelectItem value="POST">Post</SelectItem>
+                <SelectItem value="OFFERT">Offert</SelectItem>
+                <SelectItem value="EVENT">Event</SelectItem>
+                <SelectItem value="POLL">Poll</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Post title" {...field} />
+                </FormControl>
+                <FormDescription>This is your post title.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {postType === "POST" ? (
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Content</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="What's on your mind?"
+                    ></Textarea>
+                  </FormControl>
+                  <FormDescription>
+                    This is your post description
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : postType === "EVENT" ? (
             <>
               <FormField
                 control={form.control}
-                name="type"
+                name="content"
                 render={({ field }) => (
                   <FormItem>
-                    {/* <FormLabel>Section type</FormLabel> */}
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value ?? "POST"}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-40 bg-slate-100">
-                          <SelectValue placeholder="Select type of section" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-slate-100">
-                        <SelectItem value="POST">Post</SelectItem>
-                        <SelectItem value="OFFERT">Offert</SelectItem>
-                        <SelectItem value="EVENT">Event</SelectItem>
-                        <SelectItem value="POLL">Poll</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Content</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="What's on your mind?"
+                      ></Textarea>
+                    </FormControl>
+                    <FormDescription>
+                      This is your post description
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex w-full flex-row justify-between">
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="from"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Start Date</FormLabel>
+                        <FormControl>
+                          <Calendar
+                            {...field}
+                            mode="single"
+                            className="w-min rounded-md border bg-gray-200"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Select start date of event
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="to"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>End Date</FormLabel>
+                        <FormControl>
+                          <Calendar
+                            {...field}
+                            mode="single"
+                            className="w-min rounded-md border bg-gray-200"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Select end date of event
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Where are we going?"
+                      ></Input>
+                    </FormControl>
+                    <FormDescription>This is location of event</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Paragraph>Title</Paragraph>
-          <Input
-            type="title"
-            className="bg-slate-100"
-            placeholder="Be creative!"
-          />
-          <Paragraph>Description</Paragraph>
-          <Textarea
-            placeholder="What's on your mind?"
-            className="h-[15rem] resize-none bg-slate-100"
-          ></Textarea>
-          {postType === "POST" ? (
-            <p>pOST</p>
-          ) : postType === "EVENT" ? (
-            <>
-              <div className="flex w-full flex-row justify-between">
-                <div className="w-full">
-                  <Paragraph>Start date</Paragraph>
-                  <Calendar
-                    mode="single"
-                    className="w-min rounded-md border bg-gray-200"
-                  />
-                </div>
-                <div className="w-full">
-                  <Paragraph>End date</Paragraph>
-                  <Calendar
-                    mode="single"
-                    className="w-min rounded-md border bg-gray-200"
-                  />
-                </div>
-              </div>
-              <Paragraph>Location</Paragraph>
-              <Input
-                type="location"
-                className="bg-slate-100"
-                placeholder="Where?"
-              />
-            </>
           ) : postType === "OFFERT" ? (
             <>
-              <Paragraph>Price</Paragraph>
-              <Input type="price" className="bg-slate-100" />
-              <Paragraph>Category</Paragraph>
-              <Input type="category" className="bg-slate-100" />
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Money, money, money"
+                      ></Input>
+                    </FormControl>
+                    <FormDescription>Set price of this item</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. 'automotive'"></Input>
+                    </FormControl>
+                    <FormDescription>Set category</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Paragraph>Condition</Paragraph>
-              <Select>
-                <SelectTrigger className="w-40 bg-slate-100">
-                  <SelectValue placeholder="Select condition" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-100">
-                  <SelectItem value="NEW">New</SelectItem>
-                  <SelectItem value="USED">Used</SelectItem>
-                  <SelectItem value="UNKNOWN">Unknown</SelectItem>
-                </SelectContent>
-              </Select>
-              <Paragraph>Image</Paragraph>
-              <Input type="image" className="bg-slate-100" />
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Money, money, money"
+                      ></Input>
+                    </FormControl>
+                    <FormDescription>Set price of this item</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="condition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Condition</FormLabel>
+                    <FormControl>
+                      <Select {...field}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select condition" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="NEW">New</SelectItem>
+                          <SelectItem value="USED">Used</SelectItem>
+                          <SelectItem value="UNKNOWN">Unknown</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>Set condition</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                      ></Input>
+                    </FormControl>
+                    <FormDescription>Send pic</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </>
           ) : postType === "POLL" ? (
             <>
