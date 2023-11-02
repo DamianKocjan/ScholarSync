@@ -32,10 +32,15 @@ import {
 
 // TODO: use `use-form` hook when it's gonna be merged into main
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm as _useForm, type UseFormProps } from "react-hook-form";
+import {
+  useForm as _useForm,
+  useFieldArray,
+  type UseFormProps,
+} from "react-hook-form";
 import z, { array, type TypeOf, type ZodSchema } from "zod";
 import { Calendar } from "../ui/calendar";
 import { Input } from "../ui/input";
+import { LucideX } from "lucide-react";
 
 type UseZodFormProps<T extends ZodSchema> = UseFormProps<TypeOf<T>> & {
   schema: T;
@@ -75,7 +80,7 @@ const CreatePostSchema = z.union([
   z.object({
     title: z.string(),
     description: z.string(),
-    options: z.array(z.string()),
+    options: z.array(z.object({ value: z.string() })),
   }),
   z.object({ title: z.string(), content: z.string() }),
 ]);
@@ -88,6 +93,10 @@ export const CreatePost: React.FC = () => {
   };
   const form = useForm({
     schema: CreatePostSchema,
+  });
+  const options = useFieldArray({
+    control: form.control,
+    name: "options",
   });
 
   const [postType, setPostType] = useState("POST");
@@ -280,24 +289,6 @@ export const CreatePost: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <Paragraph>Condition</Paragraph>
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Money, money, money"
-                      ></Input>
-                    </FormControl>
-                    <FormDescription>Set price of this item</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="condition"
@@ -326,13 +317,11 @@ export const CreatePost: React.FC = () => {
                 name="image"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price</FormLabel>
+                    <FormLabel>Image</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                      ></Input>
+                      <Input {...field}></Input>
                     </FormControl>
-                    <FormDescription>Send pic</FormDescription>
+                    <FormDescription>Send pic plz</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -340,36 +329,63 @@ export const CreatePost: React.FC = () => {
             </>
           ) : postType === "POLL" ? (
             <>
-              <Paragraph></Paragraph>
-              <Button
-                onClick={() => {
-                  console.log(elements1);
-                  setElements([
-                    ...elements1,
-                    "Option " + Number(elements1.length + 1),
-                  ]);
-                }}
-              >
-                Add Option+
-              </Button>
-              {elements1.sort().map((e, i) => (
-                <>
-                  <Paragraph>Option {Number(i + 1)}</Paragraph>
-                  <Input className="bg-slate-100" />
-                  <Button
-                    onClick={() => {
-                      setElements(
-                        elements1
-                          .filter((x) => x != `Option ${Number(i + 1)}`)
-                          .filter(String),
-                      );
-                      console.log(elements1);
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </>
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="What's on your mind?"
+                      ></Textarea>
+                    </FormControl>
+                    <FormDescription>
+                      This is your post description
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {options.fields.map((field, optionIndex) => (
+                <div className="space-y-6" key={field.id}>
+                  <div className="flex items-center space-x-6">
+                    <FormField
+                      control={form.control}
+                      name={`options.${optionIndex}.value`}
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel>Option</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Option" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => options.remove(optionIndex)}
+                    >
+                      <LucideX className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               ))}
+              <Button
+                type="button"
+                className="my-6 w-[20%]"
+                onClick={() =>
+                  options.append({
+                    value: "",
+                  })
+                }
+              >
+                Add option
+              </Button>
             </>
           ) : null}
         </CardContent>
