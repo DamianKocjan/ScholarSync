@@ -197,9 +197,9 @@ function NoteSection({
   handleMoveSection,
   handleRemoveSection,
 }: NoteSectionProps) {
-  const { control, getValues } = useFormContext();
+  const { control, watch } = useFormContext();
 
-  const type = getValues(`sections.${index}.type`) as
+  const type = watch(`sections.${index}.type`) as
     | "TEXT"
     | "IMAGE"
     | "VIDEO"

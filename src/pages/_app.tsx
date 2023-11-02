@@ -7,6 +7,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { MainNav } from "~/components/main-nav";
 import { ThemeProvider } from "~/components/theme-provider";
+import { Toaster } from "~/components/ui/toaster";
 import { UserNav } from "~/components/user-nav";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
@@ -23,20 +24,20 @@ const MyApp: AppType<{ session: Session | null }> = ({
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
+    <div
+      className={cn(
+        "min-h-screen bg-background font-sans antialiased",
+        fontSans.variable,
+      )}
     >
-      <SessionProvider session={session}>
-        <DndProvider backend={HTML5Backend}>
-          <div
-            className={cn(
-              "min-h-screen bg-background font-sans antialiased",
-              fontSans.variable,
-            )}
-          >
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <SessionProvider session={session}>
+          <DndProvider backend={HTML5Backend}>
             <div className="border-b">
               <div className="flex h-16 items-center px-4">
                 <MainNav className="mx-6" />
@@ -49,10 +50,12 @@ const MyApp: AppType<{ session: Session | null }> = ({
             <div className="space-y-4 p-8 pt-6">
               <Component {...pageProps} />
             </div>
-          </div>
-        </DndProvider>
-      </SessionProvider>
-    </ThemeProvider>
+
+            <Toaster />
+          </DndProvider>
+        </SessionProvider>
+      </ThemeProvider>
+    </div>
   );
 };
 
