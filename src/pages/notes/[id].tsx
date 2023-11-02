@@ -31,6 +31,26 @@ export default function NoteDetail() {
     },
   );
 
+  const { mutateAsync: deleteNote } = api.note.delete.useMutation({
+    async onSuccess() {
+      toast({
+        title: "Note deleted",
+        description: "The note was deleted",
+        duration: 5000,
+      });
+      await router.push("/notes");
+    },
+    onError(error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to delete note",
+        variant: "destructive",
+        duration: 5000,
+      });
+    },
+  });
+
   const shareNote = async () => {
     if (!data) {
       return;
@@ -117,6 +137,7 @@ export default function NoteDetail() {
                           type="button"
                           variant="destructive"
                           className="w-full"
+                          onClick={async () => await deleteNote({ id })}
                         >
                           Remove
                         </Button>
