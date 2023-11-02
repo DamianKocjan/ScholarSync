@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
 import { createNoteSchema, noteWithIdSchema } from "~/schemas/note";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -134,7 +135,7 @@ export const noteRouter = createTRPCRouter({
         });
       }
     }),
-  getAll: protectedProcedure.query(async ({ ctx }) => {
+  myAll: protectedProcedure.query(async ({ ctx }) => {
     try {
       const { user } = ctx.session;
 
@@ -142,6 +143,32 @@ export const noteRouter = createTRPCRouter({
         where: {
           userId: user.id,
         },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Error occurred while retrieving notes",
+      });
+    }
+  }),
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      return await ctx.db.note.findMany({
         select: {
           id: true,
           title: true,
