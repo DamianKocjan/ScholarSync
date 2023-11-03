@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import type { Event, Ofert, Poll, Post } from "@prisma/client";
-import cuid from "cuid";
 import { TRPCError } from "@trpc/server";
+import cuid from "cuid";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { createPresignedUrl, getSignredUrl } from "../../../utils/images";
 
 export const feedRouter = createTRPCRouter({
   get: protectedProcedure
@@ -20,24 +18,15 @@ export const feedRouter = createTRPCRouter({
         throw new Error("NOT_FOUND");
       }
 
-      // @ts-ignore
-      let activity = (await ctx.prisma[content.type].findUnique({
+      // @ts-expect-error This is fine
+      const activity = await ctx.db[content.type].findUnique({
         where: {
           id: content.id,
         },
-      })) as Ofert | Post | Event | Poll;
-
-      if (activity && content.type === "ofert") {
-        activity = {
-          ...activity,
-          // @ts-ignore
-          image: await getSignredUrl(activity.id, activity.image),
-        };
-      }
+      });
 
       return {
         result: activity,
-        
       };
     }),
   getAll: protectedProcedure
@@ -46,8 +35,8 @@ export const feedRouter = createTRPCRouter({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
         exclude: z.string().optional(),
-        type: z.enum(["post", "ofert", "event", "poll", "comment"]).optional(),
-      })
+        type: z.enum(["POST", "OFFER", "EVENT", "POLL"]).optional(),
+      }),
     )
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 50;
@@ -71,8 +60,8 @@ export const feedRouter = createTRPCRouter({
         content.map(async (contentItem) => {
           let item;
 
-          if (contentItem.type === "ofert") {
-            item = await ctx.db.ofert.findUnique({
+          if (contentItem.type === "OFFER") {
+            item = await ctx.db.offer.findUnique({
               where: { id: contentItem.id },
               include: {
                 user: true,
@@ -83,14 +72,7 @@ export const feedRouter = createTRPCRouter({
                 },
               },
             });
-
-            if (item) {
-              item = {
-                ...item,
-                image: await getSignredUrl(item.id),
-              };
-            }
-          } else if (contentItem.type === "post") {
+          } else if (contentItem.type === "POST") {
             item = await ctx.db.post.findUnique({
               where: { id: contentItem.id },
               include: {
@@ -102,7 +84,7 @@ export const feedRouter = createTRPCRouter({
                 },
               },
             });
-          } else if (contentItem.type === "event") {
+          } else if (contentItem.type === "EVENT") {
             item = await ctx.db.event.findUnique({
               where: { id: contentItem.id },
               include: {
@@ -134,13 +116,13 @@ export const feedRouter = createTRPCRouter({
             id: contentItem.id,
             type: contentItem.type,
           };
-        })
+        }),
       );
 
       let nextCursor: string | undefined = undefined;
       if (feed.length > limit) {
-        const nextItem = feed.pop();
-        nextCursor = nextItem!.id;
+        const nextItem = feed.pop()!;
+        nextCursor = nextItem.id;
       }
 
       return {
@@ -151,7 +133,7 @@ export const feedRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        type: z.enum(["ofert", "post", "event", "poll"]),
+        type: z.enum(["POST", "OFFER", "EVENT", "POLL"]),
         data: z.object({
           event: z
             .object({
@@ -162,13 +144,13 @@ export const feedRouter = createTRPCRouter({
               location: z.string(),
             })
             .optional(),
-          ofert: z
+          offer: z
             .object({
               title: z.string(),
               description: z.string(),
               price: z.number(),
               condition: z.enum(["NEW", "USED", "UNKNOWN"]),
-              image: z.any(),
+              image: z.string(),
               category: z.string(),
             })
             .optional(),
@@ -186,14 +168,14 @@ export const feedRouter = createTRPCRouter({
             })
             .optional(),
         }),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { type, data } = input;
 
       const id = cuid();
 
-      if (type === "poll") {
+      if (type === "POLL") {
         if (!data.poll) {
           throw new Error("INVALID_DATA");
         }
@@ -225,8 +207,8 @@ export const feedRouter = createTRPCRouter({
             },
           }),
         ]);
-      } else if (type === "ofert") {
-        if (!data.ofert) {
+      } else if (type === "OFFER") {
+        if (!data.offer) {
           throw new Error("INVALID_DATA");
         }
 
@@ -237,17 +219,15 @@ export const feedRouter = createTRPCRouter({
               type,
             },
           }),
-          ctx.db.ofert.create({
+          ctx.db.offer.create({
             data: {
               id,
-              title: data.ofert.title,
-              description: data.ofert.description,
-              price: data.ofert.price,
-              condition: data.ofert.condition,
-              image: {
-                create: {},
-              },
-              category: data.ofert.category,
+              title: data.offer.title,
+              description: data.offer.description,
+              price: data.offer.price,
+              condition: data.offer.condition,
+              image: data.offer.image,
+              category: data.offer.category,
               user: {
                 connect: {
                   id: ctx.session.user.id,
@@ -257,16 +237,10 @@ export const feedRouter = createTRPCRouter({
           }),
         ]);
 
-        const image = (await createPresignedUrl(id)) as {
-          url: string;
-          fields: Record<string, unknown>;
-        };
-
         return {
           id,
-          image,
         };
-      } else if (type === "event") {
+      } else if (type === "EVENT") {
         if (!data.event) {
           throw new Error("INVALID_DATA");
         }
@@ -294,7 +268,7 @@ export const feedRouter = createTRPCRouter({
             },
           }),
         ]);
-      } else {
+      } else if (type === "POST") {
         if (!data.post) {
           throw new Error("INVALID_DATA");
         }
@@ -319,6 +293,11 @@ export const feedRouter = createTRPCRouter({
             },
           }),
         ]);
+      } else {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid type",
+        });
       }
 
       return {

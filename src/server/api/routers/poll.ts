@@ -1,5 +1,5 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const pollRouter = createTRPCRouter({
@@ -7,7 +7,7 @@ export const pollRouter = createTRPCRouter({
     .input(
       z.object({
         pollId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const options = await ctx.db.option.findMany({
@@ -40,7 +40,7 @@ export const pollRouter = createTRPCRouter({
       z.object({
         optionId: z.string(),
         pollId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const pollVotes = await ctx.db.vote.findMany({

@@ -1,5 +1,5 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const eventRouter = createTRPCRouter({
@@ -7,10 +7,10 @@ export const eventRouter = createTRPCRouter({
     .input(
       z.object({
         eventId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      const polinterestedInEventlVotes =
+      const pollInterestedInEventVotes =
         await ctx.db.interestedInEvent.findMany({
           where: {
             event: {
@@ -22,11 +22,11 @@ export const eventRouter = createTRPCRouter({
           },
         });
 
-      if (polinterestedInEventlVotes.length > 0) {
+      if (pollInterestedInEventVotes.length > 0) {
         await ctx.db.interestedInEvent.deleteMany({
           where: {
             id: {
-              in: polinterestedInEventlVotes.map((v) => v.id),
+              in: pollInterestedInEventVotes.map((v) => v.id),
             },
           },
         });
@@ -51,10 +51,10 @@ export const eventRouter = createTRPCRouter({
     .input(
       z.object({
         eventId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const polinterestedInEventlVotes =
+      const pollInterestedInEventVotes =
         await ctx.db.interestedInEvent.findMany({
           where: {
             event: {
@@ -66,14 +66,14 @@ export const eventRouter = createTRPCRouter({
           },
         });
 
-      return polinterestedInEventlVotes.length > 0;
+      return pollInterestedInEventVotes.length > 0;
     }),
   calendar: protectedProcedure
     .input(
       z.object({
         start: z.string(),
         end: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const events = await ctx.db.event.findMany({
@@ -108,7 +108,7 @@ export const eventRouter = createTRPCRouter({
         location: z.string(),
         from: z.string(),
         to: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.event.create({
@@ -130,7 +130,7 @@ export const eventRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const event = await ctx.db.event.findUnique({

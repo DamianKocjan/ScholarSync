@@ -1,10 +1,9 @@
-
 import { createTRPCRouter } from "~/server/api/trpc";
 import { commentRouter } from "./routers/comment";
 import { eventRouter } from "./routers/event";
 import { feedRouter } from "./routers/feed";
 import { interactionRouter } from "./routers/interaction";
-import { ofertRouter } from "./routers/ofert";
+import { offerRouter } from "./routers/offer";
 import { pollRouter } from "./routers/poll";
 
 /**
@@ -17,7 +16,7 @@ export const appRouter = createTRPCRouter({
   event: eventRouter,
   feed: feedRouter,
   interaction: interactionRouter,
-  ofert: ofertRouter,
+  offer: offerRouter,
   poll: pollRouter,
 });
 

@@ -1,25 +1,8 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-const model = z.enum(["post", "ofert", "event", "poll", "comment"]);
-
-const parseModelToType = (
-  model: "post" | "ofert" | "event" | "poll" | "comment"
-) => {
-  switch (model) {
-    case "post":
-      return "POST";
-    case "ofert":
-      return "OFERT";
-    case "event":
-      return "EVENT";
-    case "poll":
-      return "POLL";
-    case "comment":
-      return "COMMENT";
-  }
-};
+const model = z.enum(["POST", "OFFER", "EVENT", "POLL", "COMMENT"]);
 
 export const interactionRouter = createTRPCRouter({
   get: protectedProcedure
@@ -27,7 +10,7 @@ export const interactionRouter = createTRPCRouter({
       z.object({
         model,
         modelId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { model, modelId } = input;
@@ -101,7 +84,7 @@ export const interactionRouter = createTRPCRouter({
           })
         : null;
 
-      const result: any[] = [
+      const result = [
         {
           type: "LIKE",
           count: likes,
@@ -139,7 +122,7 @@ export const interactionRouter = createTRPCRouter({
         model,
         modelId: z.string(),
         type: z.enum(["LIKE", "HAHA", "SAD", "ANGRY", "LOVE", "WOW"]),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { model, modelId, type } = input;
@@ -149,7 +132,7 @@ export const interactionRouter = createTRPCRouter({
           [model]: {
             id: modelId,
           },
-          model: parseModelToType(model),
+          model,
           user: {
             id: ctx.session.user.id,
           },
@@ -177,7 +160,7 @@ export const interactionRouter = createTRPCRouter({
 
       await ctx.db.interaction.create({
         data: {
-          model: parseModelToType(model),
+          model,
           [model]: {
             connect: {
               id: modelId,

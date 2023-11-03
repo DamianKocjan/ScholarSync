@@ -1,5 +1,5 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const commentRouter = createTRPCRouter({
@@ -8,9 +8,9 @@ export const commentRouter = createTRPCRouter({
       z.object({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
-        model: z.enum(["post", "ofert", "event", "poll"]),
+        model: z.enum(["POST", "OFFER", "EVENT", "POLL"]),
         modelId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 50;
@@ -23,7 +23,7 @@ export const commentRouter = createTRPCRouter({
           id: "asc",
         },
         where: {
-          [`${model}Id`]: modelId,
+          [`${model.toLowerCase()}Id`]: modelId,
         },
         include: {
           user: true,
@@ -32,8 +32,8 @@ export const commentRouter = createTRPCRouter({
 
       let nextCursor: string | undefined = undefined;
       if (comments.length > limit) {
-        const nextItem = comments.pop();
-        nextCursor = nextItem!.id;
+        const nextItem = comments.pop()!;
+        nextCursor = nextItem.id;
       }
 
       return {
@@ -44,10 +44,10 @@ export const commentRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        model: z.enum(["post", "ofert", "event", "poll"]),
+        model: z.enum(["POST", "OFFER", "EVENT", "POLL"]),
         modelId: z.string(),
         content: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { model, modelId, content } = input;
@@ -56,7 +56,7 @@ export const commentRouter = createTRPCRouter({
         ctx.db.comment.create({
           data: {
             content: content,
-            [model]: {
+            [model.toLowerCase()]: {
               connect: {
                 id: modelId,
               },
@@ -70,7 +70,7 @@ export const commentRouter = createTRPCRouter({
         }),
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        ctx.prisma[model].update({
+        ctx.db[model.toLowerCase()].update({
           where: {
             id: modelId,
           },
