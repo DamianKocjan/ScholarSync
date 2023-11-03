@@ -157,6 +157,9 @@ export const noteRouter = createTRPCRouter({
           createdAt: true,
           updatedAt: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       });
     } catch (error) {
       console.log(error);
@@ -182,6 +185,9 @@ export const noteRouter = createTRPCRouter({
           },
           createdAt: true,
           updatedAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       });
     } catch (error) {
