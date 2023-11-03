@@ -1,9 +1,21 @@
-import { LucideGripVertical, LucideTrash2, LucideX } from "lucide-react";
+import { useDropzone } from "@uploadthing/react/hooks";
+import {
+  AlertCircle,
+  FileAudio,
+  FileVideo2,
+  FolderDown,
+  ImagePlus,
+  LucideGripVertical,
+  LucideTrash2,
+  LucideX,
+} from "lucide-react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useCallback, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -25,9 +37,11 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
+import { LargeText, MutedText, Paragraph } from "~/components/ui/typography";
 import { useForm } from "~/hooks/use-form";
 import { createNoteSchema } from "~/schemas/note";
 import { api } from "~/utils/api";
+import { useUploadThing } from "~/utils/uploadthing";
 
 const ItemTypes = {
   SECTION: "SECTION",
@@ -343,41 +357,127 @@ function NoteSection({
   );
 }
 
+function useUpload(index: number) {
+  const { setValue } = useFormContext();
+  const [error, setError] = useState<{ name: string; message: string }>();
+
+  const { startUpload, isUploading } = useUploadThing("noteFileUploader", {
+    onClientUploadComplete: (res) => {
+      if (!res?.[0]) {
+        return;
+      }
+
+      setValue(`sections.${index}.file`, res[0].url);
+    },
+    onUploadError: (e) => {
+      setError({
+        name: e.name,
+        message: e.message,
+      });
+    },
+  });
+
+  return {
+    startUpload,
+    isUploading,
+    error,
+  };
+}
+
 type AudioSectionFormProps = {
   index: number;
 };
 
 function AudioSectionForm({ index }: AudioSectionFormProps) {
-  const { control } = useFormContext();
+  const { getValues } = useFormContext();
+  const { startUpload, isUploading, error } = useUpload(index);
+  const [file, setFile] = useState<File | null>(null);
+
+  const onDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) {
+      return;
+    }
+
+    void startUpload([file]);
+    setFile(file);
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      "audio/mp3": [".mp3"],
+    },
+    multiple: false,
+    maxFiles: 1,
+    maxSize: 16 * 1024 * 1024, // 16MB
+  });
+
+  const retryUpload = async () => {
+    if (!file) {
+      return;
+    }
+
+    await startUpload([file]);
+  };
 
   return (
-    <FormField
-      control={control}
-      name={`sections.${index}.file`}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Audio</FormLabel>
-          <FormControl>
-            <>
-              <Input
-                type="file"
-                placeholder="Audio file"
-                accept="audio/mp3"
-                {...field}
+    <div
+      className="flex justify-center rounded-md border-2 border-dashed px-6 pb-6 pt-5"
+      {...getRootProps()}
+    >
+      <div className="space-y-1 text-center">
+        {file ? (
+          error ? (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>{error.name}</AlertTitle>
+              <AlertDescription>
+                {error.message}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={retryUpload}
+                  className="ml-2"
+                >
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <audio
+              controls
+              className="mx-auto mb-4 h-auto max-h-[600px] w-full"
+            >
+              <source
+                type="audio/mp3"
+                src={getValues(`sections.${index}.file`)}
               />
-              {/* TODO: Maybe someone else gonna do it */}
-              {/* {field.value ? (
-                  <audio controls className="mb-4 w-full">
-                    <source type="audio/mp3" src={field.value} />
-                    Your browser does not support the audio element.
-                  </audio>
-                ) : null} */}
-            </>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+              Your browser does not support the audio element.
+            </audio>
+          )
+        ) : (
+          <FileAudio className="mx-auto h-12 w-12" strokeWidth="1" />
+        )}
+        <Paragraph className="flex items-center">
+          <FormLabel htmlFor="audio">
+            <span className="text-primary">Upload a audio &nbsp;</span>
+            <input
+              id="audio"
+              name="audio"
+              type="file"
+              className="sr-only"
+              required
+              {...getInputProps()}
+              disabled={isUploading}
+            />
+          </FormLabel>
+          <span>or drag and drop</span>
+        </Paragraph>
+        <MutedText>MP3 up to 16MB</MutedText>
+      </div>
+    </div>
   );
 }
 
@@ -386,28 +486,143 @@ type FileSectionFormProps = {
 };
 
 function FileSectionForm({ index }: FileSectionFormProps) {
-  const { control } = useFormContext();
+  const { getValues } = useFormContext();
+  const { startUpload, isUploading, error } = useUpload(index);
+  const [file, setFile] = useState<File | null>(null);
+
+  const onDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) {
+      return;
+    }
+
+    void startUpload([file]);
+    setFile(file);
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      "application/*": [".*"],
+    },
+    multiple: false,
+    maxFiles: 1,
+    maxSize: 32 * 1024 * 1024, // 32MB
+  });
+
+  const retryUpload = async () => {
+    if (!file) {
+      return;
+    }
+
+    await startUpload([file]);
+  };
 
   return (
-    <FormField
-      control={control}
-      name={`sections.${index}.file`}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>File</FormLabel>
-          <FormControl>
-            <Input
+    <div
+      className="flex justify-center rounded-md border-2 border-dashed px-6 pb-6 pt-5"
+      {...getRootProps()}
+    >
+      <div className="space-y-1 text-center">
+        {file ? (
+          error ? (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>{error.name}</AlertTitle>
+              <AlertDescription>
+                {error.message}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={retryUpload}
+                  className="ml-2"
+                >
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <LargeText className="text-primary">
+              <a href={getValues(`sections.${index}.file`)} download>
+                {file.name}
+              </a>
+            </LargeText>
+          )
+        ) : (
+          <FolderDown className="mx-auto h-12 w-12" strokeWidth="1" />
+        )}
+        <Paragraph className="flex items-center">
+          <FormLabel htmlFor="file">
+            <span className="text-primary">Upload a file &nbsp;</span>
+            <input
+              id="file"
+              name="file"
               type="file"
-              placeholder="File"
-              accept="application/pdf"
-              {...field}
+              className="sr-only"
+              required
+              {...getInputProps()}
+              disabled={isUploading}
             />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+          </FormLabel>
+          <span>or drag and drop</span>
+        </Paragraph>
+        <MutedText>Any file up to 32MB</MutedText>
+      </div>
+    </div>
   );
+}
+
+type PreviewThumbnail = FileReader["result"];
+
+function useThumbnail(handleDrop: (file: File) => Promise<void> | void) {
+  const [thumbnail, setThumbnail] = useState<File>();
+  const [previewThumbnail, setPreviewThumbnail] =
+    useState<PreviewThumbnail>(null);
+
+  const onDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) {
+      return;
+    }
+
+    setThumbnail(file);
+
+    // create preview image of thumbnail
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      e.target && setPreviewThumbnail(e.target.result);
+    };
+    reader.readAsDataURL(new Blob([file], { type: file.type }));
+
+    void handleDrop(file);
+  };
+
+  const handleRemoveThumbnail = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPreviewThumbnail(null);
+    setThumbnail(undefined);
+  }, []);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      "image/png": [".png"],
+      "image/jpeg": [".jpeg", ".jpg"],
+      "image/gif": [".gif"],
+    },
+    multiple: false,
+    maxFiles: 1,
+    maxSize: 16 * 1024 * 1024, // 16MB
+  });
+
+  return {
+    thumbnail,
+    previewThumbnail,
+    getRootProps,
+    getInputProps,
+    handleRemoveThumbnail,
+  };
 }
 
 type ImageSectionFormProps = {
@@ -415,32 +630,81 @@ type ImageSectionFormProps = {
 };
 
 function ImageSectionForm({ index }: ImageSectionFormProps) {
-  const { control } = useFormContext();
+  const { setValue } = useFormContext();
+  const { error, isUploading, startUpload } = useUpload(index);
+
+  const handleUploadImage = async (file: File) => {
+    const result = await startUpload([file]);
+
+    if (!result?.[0]) {
+      return;
+    }
+    setValue(`sections.${index}.file`, result[0].url);
+  };
+
+  const { thumbnail, previewThumbnail, getRootProps, getInputProps } =
+    useThumbnail(handleUploadImage);
+
+  const retryUpload = async () => {
+    if (!thumbnail) {
+      return;
+    }
+
+    await handleUploadImage(thumbnail);
+  };
 
   return (
-    <FormField
-      control={control}
-      name={`sections.${index}.file`}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Image</FormLabel>
-          <FormControl>
-            <>
-              <Input
-                type="file"
-                placeholder="Image file"
-                accept="image/*"
-                {...field}
-              />
-              {field.value ? (
-                <img src={field.value} className="mb-4 w-full" />
-              ) : null}
-            </>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div
+      className="flex justify-center rounded-md border-2 border-dashed px-6 pb-6 pt-5"
+      {...getRootProps()}
+    >
+      <div className="space-y-1 text-center">
+        {previewThumbnail ? (
+          error ? (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>{error.name}</AlertTitle>
+              <AlertDescription>
+                {error.message}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={retryUpload}
+                  className="ml-2"
+                >
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <img
+              src={previewThumbnail.toString()}
+              className="my-auto max-h-72 w-auto rounded-lg"
+              alt="Preview"
+            />
+          )
+        ) : (
+          <ImagePlus className="mx-auto h-12 w-12" strokeWidth="1" />
+        )}
+        <Paragraph className="flex items-center">
+          <FormLabel htmlFor="image">
+            <span className="text-primary">Upload a image &nbsp;</span>
+            <input
+              id="image"
+              name="image"
+              type="file"
+              className="sr-only"
+              required
+              {...getInputProps()}
+              disabled={isUploading}
+            />
+          </FormLabel>
+          <span>or drag and drop</span>
+        </Paragraph>
+        <MutedText>PNG, JPG, GIF up to 16MB</MutedText>
+      </div>
+    </div>
   );
 }
 
@@ -533,35 +797,94 @@ type VideoSectionFormProps = {
 };
 
 function VideoSectionForm({ index }: VideoSectionFormProps) {
-  const { control } = useFormContext();
+  const { getValues } = useFormContext();
+  const { startUpload, isUploading, error } = useUpload(index);
+  const [file, setFile] = useState<File | null>(null);
+
+  const onDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) {
+      return;
+    }
+
+    void startUpload([file]);
+    setFile(file);
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      "video/mp4": [".mp4"],
+    },
+    multiple: false,
+    maxFiles: 1,
+    maxSize: 32 * 1024 * 1024, // 32MB
+  });
+
+  const retryUpload = async () => {
+    if (!file) {
+      return;
+    }
+
+    await startUpload([file]);
+  };
 
   return (
-    <FormField
-      control={control}
-      name={`sections.${index}.file`}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Video</FormLabel>
-          <FormControl>
-            <>
-              <Input
-                type="file"
-                placeholder="Video file"
-                accept="video/mp4"
-                {...field}
+    <div
+      className="flex justify-center rounded-md border-2 border-dashed px-6 pb-6 pt-5"
+      {...getRootProps()}
+    >
+      <div className="space-y-1 text-center">
+        {file ? (
+          error ? (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>{error.name}</AlertTitle>
+              <AlertDescription>
+                {error.message}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={retryUpload}
+                  className="ml-2"
+                >
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <video
+              controls
+              className="mx-auto mb-4 h-auto max-h-[600px] w-full"
+            >
+              <source
+                type="video/mp4"
+                src={getValues(`sections.${index}.file`)}
               />
-              {/* TODO: Maybe someone else gonna do it */}
-              {/* {field.value ? (
-                  <video controls className="mb-4 w-full">
-                    <source type="audio/mp4" src={field.value} />
-                    Your browser does not support the audio element.
-                  </video>
-                ) : null} */}
-            </>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+              Your browser does not support the video element.
+            </video>
+          )
+        ) : (
+          <FileVideo2 className="mx-auto h-12 w-12" strokeWidth="1" />
+        )}
+        <Paragraph className="flex items-center">
+          <FormLabel htmlFor="video">
+            <span className="text-primary">Upload a video &nbsp;</span>
+            <input
+              id="video"
+              name="video"
+              type="file"
+              className="sr-only"
+              required
+              {...getInputProps()}
+              disabled={isUploading}
+            />
+          </FormLabel>
+          <span>or drag and drop</span>
+        </Paragraph>
+        <MutedText>MP4 up to 32MB</MutedText>
+      </div>
+    </div>
   );
 }
