@@ -49,6 +49,55 @@ model Ofert {
     interactions     Interaction[]
 }
 
+model Note {
+    id          String        @id @default(cuid())
+    title       String        @db.VarChar(250)
+    description String?       @db.VarChar(500)
+    sections    NoteSection[]
+    user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+
+    @@index([userId, title])
+}
+
+enum NoteSectionType {
+    TEXT
+    QUIZ
+    IMAGE
+    VIDEO
+    AUDIO
+    FILE
+}
+
+model NoteSection {
+    id          String          @id @default(cuid())
+    subtitle    String?         @db.VarChar(250)
+    content     String?         @db.VarChar(5000)
+    file        String?
+    type        NoteSectionType @default(TEXT)
+    index       Int             @default(0)
+    note        Note            @relation(fields: [noteId], references: [id], onDelete: Cascade)
+    noteId      String
+    createdAt   DateTime        @default(now())
+    updatedAt   DateTime        @updatedAt
+    quizAnswers QuizAnswer[]
+
+    @@unique([noteId, index])
+    @@index([noteId])
+}
+
+model QuizAnswer {
+    id            String      @id @default(cuid())
+    answer        String      @db.VarChar(250)
+    isCorrect     Boolean     @default(false)
+    noteSection   NoteSection @relation(fields: [noteSectionId], references: [id], onDelete: Cascade)
+    noteSectionId String
+
+    @@index([noteSectionId])
+}
+
 model Post {
     id               String        @id @default(cuid())
     title            String
@@ -215,6 +264,7 @@ model User {
     image              String?
     accounts           Account[]
     sessions           Session[]
+    notes              Note[]
     oferts             Ofert[]
     posts              Post[]
     comments           Comment[]
