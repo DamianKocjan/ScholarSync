@@ -241,7 +241,10 @@ function Section({
         <Link href={`${router.asPath}#${subtitleId}`}>{subtitle}</Link>
       </H2>
 
-      <Paragraph dangerouslySetInnerHTML={{ __html: content ?? "" }} />
+      <div
+        className="prose lg:prose-md leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: content ?? "" }}
+      />
 
       {type === "QUIZ" ? (
         <SectionQuiz quizAnswers={quizAnswers} />
