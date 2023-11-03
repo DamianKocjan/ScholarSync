@@ -38,7 +38,6 @@ export function ContentField({ index }: ContentFieldProps) {
               modules={modules}
               formats={formats}
             />
-            {/* <Textarea placeholder="Note content" {...field} /> */}
           </FormControl>
           <FormMessage />
         </FormItem>

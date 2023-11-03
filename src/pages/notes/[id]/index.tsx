@@ -348,11 +348,10 @@ type SectionAudioProps = {
 
 function SectionAudio({ file }: SectionAudioProps) {
   return (
-    <audio
-      controls
-      src={file}
-      className="mx-auto mb-4 h-auto max-h-[600px] w-full"
-    />
+    <audio controls className="mx-auto mb-4 h-auto max-h-[600px] w-full">
+      <source type="audio/mp3" src={file} />
+      Your browser does not support the audio element.
+    </audio>
   );
 }
 
@@ -362,11 +361,10 @@ type SectionVideoProps = {
 
 function SectionVideo({ file }: SectionVideoProps) {
   return (
-    <video
-      controls
-      src={file}
-      className="mx-auto mb-4 h-auto max-h-[600px] w-full"
-    />
+    <video controls className="mx-auto mb-4 h-auto max-h-[600px] w-full">
+      <source type="video/mp4" src={file} />
+      Your browser does not support the video element.
+    </video>
   );
 }
 
