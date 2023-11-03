@@ -13,6 +13,7 @@ datasource db {
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
 }
+
 model Activity {
     id        String   @id @default(cuid())
     type      String
@@ -25,19 +26,13 @@ enum Condition {
     UNKNOWN
 }
 
-model Attachment {
-    id     String  @id @default(cuid())
-    oferts Ofert[]
-}
-
-model Ofert {
+model Offer {
     id               String        @id @default(cuid())
     title            String
     description      String
     price            Decimal       @db.Decimal(10, 2)
     condition        Condition
-    image            Attachment    @relation(fields: [imageId], references: [id], onDelete: Restrict)
-    imageId          String
+    image            String
     category         String
     createdAt        DateTime      @default(now())
     updatedAt        DateTime      @updatedAt
@@ -180,8 +175,8 @@ model Comment {
     userId       String
     post         Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId       String?
-    ofert        Ofert?        @relation(fields: [ofertId], references: [id], onDelete: Cascade)
-    ofertId      String?
+    offer        Offer?        @relation(fields: [offerId], references: [id], onDelete: Cascade)
+    offerId      String?
     event        Event?        @relation(fields: [eventId], references: [id], onDelete: Cascade)
     eventId      String?
     poll         Poll?         @relation(fields: [pollId], references: [id], onDelete: Cascade)
@@ -201,7 +196,7 @@ enum InteractionType {
 
 enum InteractionModel {
     POST
-    OFERT
+    OFFER
     COMMENT
     EVENT
     POLL
@@ -217,17 +212,15 @@ model Interaction {
     userId    String
     post      Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId    String?
-    ofert     Ofert?           @relation(fields: [ofertId], references: [id], onDelete: Cascade)
-    ofertId   String?
+    offer     Offer?           @relation(fields: [offerId], references: [id], onDelete: Cascade)
+    offerId   String?
     event     Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
     eventId   String?
     poll      Poll?            @relation(fields: [pollId], references: [id], onDelete: Cascade)
     pollId    String?
     comment   Comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
     commentId String?
-    
 }
-
 
 // Necessary for Next auth
 model Account {
@@ -265,7 +258,7 @@ model User {
     accounts           Account[]
     sessions           Session[]
     notes              Note[]
-    oferts             Ofert[]
+    offers             Offer[]
     posts              Post[]
     comments           Comment[]
     interactions       Interaction[]

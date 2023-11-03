@@ -1,15 +1,16 @@
 import { z } from "zod";
-import { authedProcedure, t } from "../trpc";
 
-export const pollRouter = t.router({
-  options: authedProcedure
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+
+export const pollRouter = createTRPCRouter({
+  options: protectedProcedure
     .input(
       z.object({
         pollId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const options = await ctx.prisma.option.findMany({
+      const options = await ctx.db.option.findMany({
         where: {
           pollId: input.pollId,
         },
@@ -34,15 +35,15 @@ export const pollRouter = t.router({
         result: options,
       };
     }),
-  vote: authedProcedure
+  vote: protectedProcedure
     .input(
       z.object({
         optionId: z.string(),
         pollId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      const pollVotes = await ctx.prisma.vote.findMany({
+      const pollVotes = await ctx.db.vote.findMany({
         where: {
           option: {
             pollId: input.pollId,
@@ -54,7 +55,7 @@ export const pollRouter = t.router({
       });
 
       if (pollVotes.length === 1 && pollVotes[0]!.optionId === input.optionId) {
-        await ctx.prisma.vote.delete({
+        await ctx.db.vote.delete({
           where: {
             id: pollVotes[0]!.id,
           },
@@ -63,7 +64,7 @@ export const pollRouter = t.router({
       }
 
       if (pollVotes.length > 0) {
-        await ctx.prisma.vote.deleteMany({
+        await ctx.db.vote.deleteMany({
           where: {
             id: {
               in: pollVotes.map((v) => v.id),
@@ -72,7 +73,7 @@ export const pollRouter = t.router({
         });
       }
 
-      await ctx.prisma.vote.create({
+      await ctx.db.vote.create({
         data: {
           option: {
             connect: {

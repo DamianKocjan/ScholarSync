@@ -1,41 +1,24 @@
 import { z } from "zod";
-import { Interaction } from "../../../types";
-import { authedProcedure, t } from "../trpc";
 
-const model = z.enum(["post", "ofert", "event", "poll", "comment"]);
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-const parseModelToType = (
-  model: "post" | "ofert" | "event" | "poll" | "comment"
-) => {
-  switch (model) {
-    case "post":
-      return "POST";
-    case "ofert":
-      return "OFERT";
-    case "event":
-      return "EVENT";
-    case "poll":
-      return "POLL";
-    case "comment":
-      return "COMMENT";
-  }
-};
+const model = z.enum(["POST", "OFFER", "EVENT", "POLL", "COMMENT"]);
 
-export const interactionRouter = t.router({
-  get: authedProcedure
+export const interactionRouter = createTRPCRouter({
+  get: protectedProcedure
     .input(
       z.object({
         model,
         modelId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { model, modelId } = input;
 
       // TODO: better naming?
       const [likes, hahas, sads, angries, loves, wows] =
-        await ctx.prisma.$transaction([
-          ctx.prisma.interaction.count({
+        await ctx.db.$transaction([
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -43,7 +26,7 @@ export const interactionRouter = t.router({
               type: "LIKE",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -51,7 +34,7 @@ export const interactionRouter = t.router({
               type: "HAHA",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -59,7 +42,7 @@ export const interactionRouter = t.router({
               type: "SAD",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -67,7 +50,7 @@ export const interactionRouter = t.router({
               type: "ANGRY",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -75,7 +58,7 @@ export const interactionRouter = t.router({
               type: "LOVE",
             },
           }),
-          ctx.prisma.interaction.count({
+          ctx.db.interaction.count({
             where: {
               [model]: {
                 id: modelId,
@@ -86,7 +69,7 @@ export const interactionRouter = t.router({
         ]);
 
       const hasInteracted = ctx.session?.user
-        ? await ctx.prisma.interaction.findFirst({
+        ? await ctx.db.interaction.findFirst({
             where: {
               [model]: {
                 id: modelId,
@@ -101,7 +84,7 @@ export const interactionRouter = t.router({
           })
         : null;
 
-      const result: Interaction[] = [
+      const result = [
         {
           type: "LIKE",
           count: likes,
@@ -133,23 +116,23 @@ export const interactionRouter = t.router({
         hasInteracted,
       };
     }),
-  interact: authedProcedure
+  interact: protectedProcedure
     .input(
       z.object({
         model,
         modelId: z.string(),
         type: z.enum(["LIKE", "HAHA", "SAD", "ANGRY", "LOVE", "WOW"]),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { model, modelId, type } = input;
 
-      const userInteractions = await ctx.prisma.interaction.findMany({
+      const userInteractions = await ctx.db.interaction.findMany({
         where: {
           [model]: {
             id: modelId,
           },
-          model: parseModelToType(model),
+          model,
           user: {
             id: ctx.session.user.id,
           },
@@ -157,7 +140,7 @@ export const interactionRouter = t.router({
       });
 
       if (userInteractions.length === 1 && userInteractions[0]!.type === type) {
-        await ctx.prisma.interaction.delete({
+        await ctx.db.interaction.delete({
           where: {
             id: userInteractions[0]!.id,
           },
@@ -166,7 +149,7 @@ export const interactionRouter = t.router({
       }
 
       if (userInteractions.length > 0) {
-        await ctx.prisma.interaction.deleteMany({
+        await ctx.db.interaction.deleteMany({
           where: {
             id: {
               in: userInteractions.map((i) => i.id),
@@ -175,9 +158,9 @@ export const interactionRouter = t.router({
         });
       }
 
-      await ctx.prisma.interaction.create({
+      await ctx.db.interaction.create({
         data: {
-          model: parseModelToType(model),
+          model,
           [model]: {
             connect: {
               id: modelId,

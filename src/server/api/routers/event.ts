@@ -1,16 +1,17 @@
 import { z } from "zod";
-import { authedProcedure, t } from "../trpc";
 
-export const eventRouter = t.router({
-  interestedIn: authedProcedure
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+
+export const eventRouter = createTRPCRouter({
+  interestedIn: protectedProcedure
     .input(
       z.object({
         eventId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      const polinterestedInEventlVotes =
-        await ctx.prisma.interestedInEvent.findMany({
+      const pollInterestedInEventVotes =
+        await ctx.db.interestedInEvent.findMany({
           where: {
             event: {
               id: input.eventId,
@@ -21,16 +22,16 @@ export const eventRouter = t.router({
           },
         });
 
-      if (polinterestedInEventlVotes.length > 0) {
-        await ctx.prisma.interestedInEvent.deleteMany({
+      if (pollInterestedInEventVotes.length > 0) {
+        await ctx.db.interestedInEvent.deleteMany({
           where: {
             id: {
-              in: polinterestedInEventlVotes.map((v) => v.id),
+              in: pollInterestedInEventVotes.map((v) => v.id),
             },
           },
         });
       } else {
-        await ctx.prisma.interestedInEvent.create({
+        await ctx.db.interestedInEvent.create({
           data: {
             event: {
               connect: {
@@ -46,15 +47,15 @@ export const eventRouter = t.router({
         });
       }
     }),
-  isInterestedIn: authedProcedure
+  isInterestedIn: protectedProcedure
     .input(
       z.object({
         eventId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const polinterestedInEventlVotes =
-        await ctx.prisma.interestedInEvent.findMany({
+      const pollInterestedInEventVotes =
+        await ctx.db.interestedInEvent.findMany({
           where: {
             event: {
               id: input.eventId,
@@ -65,17 +66,17 @@ export const eventRouter = t.router({
           },
         });
 
-      return polinterestedInEventlVotes.length > 0;
+      return pollInterestedInEventVotes.length > 0;
     }),
-  calendar: authedProcedure
+  calendar: protectedProcedure
     .input(
       z.object({
         start: z.string(),
         end: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const events = await ctx.prisma.event.findMany({
+      const events = await ctx.db.event.findMany({
         where: {
           from: {
             gte: new Date(input.start),
@@ -99,7 +100,7 @@ export const eventRouter = t.router({
         },
       }));
     }),
-  create: authedProcedure
+  create: protectedProcedure
     .input(
       z.object({
         title: z.string(),
@@ -107,10 +108,10 @@ export const eventRouter = t.router({
         location: z.string(),
         from: z.string(),
         to: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.event.create({
+      await ctx.db.event.create({
         data: {
           title: input.title,
           description: input.description,
@@ -125,14 +126,14 @@ export const eventRouter = t.router({
         },
       });
     }),
-  get: authedProcedure
+  get: protectedProcedure
     .input(
       z.object({
         id: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const event = await ctx.prisma.event.findUnique({
+      const event = await ctx.db.event.findUnique({
         where: {
           id: input.id,
         },
