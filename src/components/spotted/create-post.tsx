@@ -356,7 +356,7 @@ export const CreatePost: React.FC = () => {
                       name={`options.${optionIndex}.value`}
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel>Option</FormLabel>
+                          <FormLabel>Option {optionIndex+1}</FormLabel>
                           <FormControl>
                             <Input placeholder="Option" {...field} />
                           </FormControl>
