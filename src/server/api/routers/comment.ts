@@ -25,8 +25,18 @@ export const commentRouter = createTRPCRouter({
         where: {
           [`${model.toLowerCase()}Id`]: modelId,
         },
-        include: {
-          user: true,
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
         },
       });
 

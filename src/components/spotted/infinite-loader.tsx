@@ -1,6 +1,6 @@
-import React from "react";
-import { LoadingSpinner } from "./loading-spinner";
-import { useInfinityLoader } from "./useInfinityLoader";
+import { Loader2 } from "lucide-react";
+
+import { useInfinityLoader } from "~/hooks/use-infinity-loader";
 
 interface InfiniteLoaderProps {
   callback: () => void;
@@ -8,11 +8,11 @@ interface InfiniteLoaderProps {
   isFetching: boolean;
 }
 
-export const InfiniteLoader: React.FC<InfiniteLoaderProps> = ({
+export function InfiniteLoader({
   callback,
   isFetching,
   hasNextPage,
-}) => {
+}: InfiniteLoaderProps) {
   const ref = useInfinityLoader({
     callback,
     hasNextPage,
@@ -21,7 +21,7 @@ export const InfiniteLoader: React.FC<InfiniteLoaderProps> = ({
 
   return (
     <div ref={ref} className="flex w-full items-center justify-center">
-      {isFetching && <LoadingSpinner />}
+      {isFetching && <Loader2 className="h-4 w-4 animate-spin" />}
     </div>
   );
-};
+}

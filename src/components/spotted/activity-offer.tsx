@@ -9,7 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Paragraph, SmallText } from "~/components/ui/typography";
+import {
+  H2,
+  MutedText,
+  Paragraph,
+  SmallText,
+} from "~/components/ui/typography";
 import { cn } from "~/lib/utils";
 
 const DynamicCommentSection = dynamic(
@@ -25,27 +30,34 @@ const DynamicInteractions = dynamic(
   },
 );
 
-export interface ActivityPostProps {
-  type: "POST";
+export interface ActivityOfferProps {
   id: string;
   title: string;
-  content: string;
+  user: { name: string | null; image: string | null };
+  description: string;
   createdAt: Date;
   updatedAt: Date;
-  user: { name: string | null; image: string | null };
+  price: number;
+  condition: "NEW" | "USED" | "UNKNOWN";
+  image: string;
+  category: string;
   _count: {
     comments: number;
   };
 }
 
-export function ActivityPost({
+export function ActivityOffer({
   id,
   user,
+  description,
   createdAt,
   title,
-  content,
+  price,
+  condition,
+  category,
+  image,
   _count,
-}: ActivityPostProps) {
+}: ActivityOfferProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
 
   return (
@@ -70,8 +82,16 @@ export function ActivityPost({
       </CardHeader>
 
       <CardContent>
-        <CardTitle>{title}</CardTitle>
-        <Paragraph>{content}</Paragraph>
+        <CardTitle className="text-xl">
+          <H2>
+            {title} - {price.toString()}
+          </H2>
+        </CardTitle>
+        <MutedText>
+          Category: {category} Condition {condition}
+        </MutedText>
+        <p>{description}</p>
+        <img src={image} className="mt-7 max-h-[30rem] min-h-[10rem] w-full" />
       </CardContent>
 
       <CardFooter className="flex justify-between">

@@ -13,7 +13,13 @@ export const interactionRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { model, modelId } = input;
+      const { modelId } = input;
+      const model = input.model.toLowerCase() as
+        | "post"
+        | "offer"
+        | "event"
+        | "poll"
+        | "comment";
 
       // TODO: better naming?
       const [likes, hahas, sads, angries, loves, wows] =

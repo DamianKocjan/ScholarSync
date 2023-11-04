@@ -1,30 +1,23 @@
+import { AlertCircle, Info, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import React from "react";
+
 import { api } from "~/utils/api";
-// import { EmptyState } from "../EmptyState";
-// import { ErrorAlert } from "../ErrorAlert";
-// import { InfiniteLoader } from "../InfiniteLoader";
-// import { LoadingSpinner } from "../LoadingSpinner";
-import { ActivityPost } from "./activity-post";
-import { EventPost } from "./event-post";
-import { PollPost } from "./poll-post";
-import { LoadingSpinner } from "./shared/loading-spinner";
-import { ErrorAlert } from "./shared/error-alert";
-import {EmptyState} from "./shared/empty-state";
-import {InfiniteLoader} from "./shared/infinite-loader";
-//TO DO offert
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Activity, type ActivityProps, type ActivityType } from "./activity";
+import { InfiniteLoader } from "./infinite-loader";
+
 const DynamicCreateActivity = dynamic(
-  () => import("../Activity/Create").then((mod) => mod.CreateActivity),
+  () => import("./create-activity").then((mod) => mod.CreateActivity),
   {
     ssr: false,
-  }
+  },
 );
 
-const ACTIVITY = { post: ActivityPost, event: EventPost, poll: PollPost };
 interface FeedProps {
   withCreate?: boolean;
   exclude?: string;
-  type?: "POST" | "OFFER" | "EVENT" | "POLL";
+  type?: ActivityType;
 }
 
 export const Feed: React.FC<FeedProps> = ({ exclude, type, withCreate }) => {
@@ -54,31 +47,35 @@ export const Feed: React.FC<FeedProps> = ({ exclude, type, withCreate }) => {
       {withCreate && <DynamicCreateActivity />}
 
       {isLoading ? (
-        <div className="flex items-center justify-center">
-          <LoadingSpinner />
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Loading...
         </div>
       ) : isError ? (
-        <ErrorAlert
-          title="Something went wrong!"
-          message={error?.message ?? String(error)}
-        />
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error?.message}</AlertDescription>
+        </Alert>
       ) : data?.pages?.[0]?.items.length === 0 ? (
-        <EmptyState
-          title="No posts yet"
-          description="Seems like there are no posts yet."
-        />
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>No posts yet</AlertTitle>
+          <AlertDescription>
+            Seems like there are no posts yet.
+          </AlertDescription>
+        </Alert>
       ) : (
-        <div>
-          {data !== undefined &&
-            data.pages.map((page) =>
-              page.items.map((item) => (
-                <ActivityPost
-                  key={item.id}
-                  {...(item as ActivityPostProps)}
-                  type={item.type as ActivityType}
-                />
-              )),
-            )}
+        <>
+          {data?.pages.map((page) =>
+            page.items.map((item) => (
+              <Activity
+                key={item.id}
+                {...(item as ActivityProps)}
+                type={item.type as ActivityType}
+              />
+            )),
+          )}
           <InfiniteLoader
             callback={() => fetchNextPage()}
             isFetching={isFetching}

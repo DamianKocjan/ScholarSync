@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,6 +12,7 @@ import {
 } from "~/components/ui/card";
 import { Paragraph, SmallText } from "~/components/ui/typography";
 import { cn } from "~/lib/utils";
+import { api } from "~/utils/api";
 
 const DynamicCommentSection = dynamic(
   () => import("./comment-section").then((mod) => mod.CommentSection),
@@ -25,28 +27,46 @@ const DynamicInteractions = dynamic(
   },
 );
 
-export interface ActivityPostProps {
-  type: "POST";
+export interface ActivityEventProps {
   id: string;
   title: string;
-  content: string;
+  description: string;
+  from: Date;
+  to: Date;
+  location: string;
   createdAt: Date;
   updatedAt: Date;
   user: { name: string | null; image: string | null };
+  userId: string;
   _count: {
     comments: number;
   };
 }
 
-export function ActivityPost({
+export function ActivityEvent({
   id,
   user,
   createdAt,
   title,
-  content,
+  from,
+  to,
+  location,
+  description,
   _count,
-}: ActivityPostProps) {
+}: ActivityEventProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
+
+  const { data, refetch } = api.event.isInterestedIn.useQuery(
+    { eventId: id },
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+  const { mutateAsync } = api.event.interestedIn.useMutation({
+    async onSuccess() {
+      await refetch();
+    },
+  });
 
   return (
     <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col bg-slate-100 p-2">
@@ -71,7 +91,25 @@ export function ActivityPost({
 
       <CardContent>
         <CardTitle>{title}</CardTitle>
-        <Paragraph>{content}</Paragraph>
+        <SmallText>
+          {from.toLocaleDateString()} - {to.toLocaleDateString()} {location}
+        </SmallText>
+        <Paragraph>{description}</Paragraph>
+
+        {data !== undefined && (
+          <Button
+            type="button"
+            className="mt-2"
+            onClick={async () =>
+              await mutateAsync({
+                eventId: id,
+              })
+            }
+            variant={data ? "default" : "outline"}
+          >
+            {data ? "I'm interest in event!" : "Interested in event?"}
+          </Button>
+        )}
       </CardContent>
 
       <CardFooter className="flex justify-between">
