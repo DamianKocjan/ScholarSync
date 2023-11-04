@@ -42,7 +42,7 @@ export default function NoteCreate() {
   };
 
   const updateIndexes = () => {
-    sections.fields.forEach((_field, index) => {
+    form.getValues("sections").forEach((_section, index) => {
       form.setValue(`sections.${index}.index`, index);
     });
   };
@@ -53,7 +53,7 @@ export default function NoteCreate() {
   };
 
   const removeSection = (index: number) => {
-    if (sections.fields.length === 1) {
+    if (form.getValues("sections").length === 1) {
       return;
     }
 
