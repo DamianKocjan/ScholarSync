@@ -167,21 +167,22 @@ export function CreateActivity() {
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormControl>
-                      <Select {...field}>
-                        <FormControl>
-                          <SelectTrigger className="w-40 bg-slate-100">
-                            <SelectValue placeholder="Type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-slate-100">
-                          <SelectItem value="POST">Post</SelectItem>
-                          <SelectItem value="OFFER">Offer</SelectItem>
-                          <SelectItem value="EVENT">Event</SelectItem>
-                          <SelectItem value="POLL">Poll</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-40 bg-slate-100">
+                          <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-slate-100">
+                        <SelectItem value="POST">Post</SelectItem>
+                        <SelectItem value="OFFER">Offer</SelectItem>
+                        <SelectItem value="EVENT">Event</SelectItem>
+                        <SelectItem value="POLL">Poll</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormItem>
                 )}
               />
