@@ -466,7 +466,7 @@ function ActivityPollForm() {
       />
       {options.fields.map((field, optionIndex) => (
         <div className="space-y-6" key={field.id}>
-          <div className="flex items-center space-x-6">
+          <div className="flex items-end space-x-6">
             <FormField
               control={control}
               name={`options.${optionIndex}.value`}
@@ -493,7 +493,8 @@ function ActivityPollForm() {
       ))}
       <Button
         type="button"
-        className="my-6 w-[20%]"
+        variant="outline"
+        className="my-6 w-full"
         onClick={() =>
           options.append({
             value: "",
