@@ -1,6 +1,4 @@
-import { useDropzone } from "@uploadthing/react/hooks";
 import { AlertCircle, ImagePlus } from "lucide-react";
-import { useCallback, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -8,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { FormLabel } from "~/components/ui/form";
 import { MutedText, Paragraph } from "~/components/ui/typography";
 import { useNotesUpload } from "~/hooks/use-notes-upload";
+import { useThumbnail } from "~/hooks/use-thumbnail";
 
 type ImageSectionFormProps = {
   index: number;
@@ -90,56 +89,4 @@ export function ImageSectionForm({ index }: ImageSectionFormProps) {
       </div>
     </div>
   );
-}
-
-type PreviewThumbnail = FileReader["result"];
-
-function useThumbnail(handleDrop: (file: File) => Promise<void> | void) {
-  const [thumbnail, setThumbnail] = useState<File>();
-  const [previewThumbnail, setPreviewThumbnail] =
-    useState<PreviewThumbnail>(null);
-
-  const onDrop = (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (!file) {
-      return;
-    }
-
-    setThumbnail(file);
-
-    // create preview image of thumbnail
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      e.target && setPreviewThumbnail(e.target.result);
-    };
-    reader.readAsDataURL(new Blob([file], { type: file.type }));
-
-    void handleDrop(file);
-  };
-
-  const handleRemoveThumbnail = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setPreviewThumbnail(null);
-    setThumbnail(undefined);
-  }, []);
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: {
-      "image/png": [".png"],
-      "image/jpeg": [".jpeg", ".jpg"],
-      "image/gif": [".gif"],
-    },
-    multiple: false,
-    maxFiles: 1,
-    maxSize: 16 * 1024 * 1024, // 16MB
-  });
-
-  return {
-    thumbnail,
-    previewThumbnail,
-    getRootProps,
-    getInputProps,
-    handleRemoveThumbnail,
-  };
 }

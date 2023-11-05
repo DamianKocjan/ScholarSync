@@ -1,10 +1,11 @@
 import { format } from "date-fns";
-import { CalendarIcon, LucideX } from "lucide-react";
+import { AlertCircle, CalendarIcon, ImagePlus, LucideX } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import z from "zod";
 
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -37,8 +38,10 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
-import { SmallText } from "~/components/ui/typography";
+import { MutedText, Paragraph, SmallText } from "~/components/ui/typography";
+import { useActivityUpload } from "~/hooks/use-activity-upload";
 import { useForm } from "~/hooks/use-form";
+import { useThumbnail } from "~/hooks/use-thumbnail";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 
@@ -300,6 +303,7 @@ function ActivityEventForm() {
             </FormItem>
           )}
         />
+
         <FormField
           control={control}
           name="to"
@@ -365,10 +369,107 @@ function ActivityEventForm() {
 }
 
 function ActivityOfferForm() {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
+  const { error, isUploading, startUpload } = useActivityUpload();
+
+  const handleUploadImage = async (file: File) => {
+    await startUpload([file]);
+  };
+
+  const { thumbnail, previewThumbnail, getRootProps, getInputProps } =
+    useThumbnail(handleUploadImage);
+
+  const retryUpload = async () => {
+    if (!thumbnail) {
+      return;
+    }
+
+    await handleUploadImage(thumbnail);
+  };
 
   return (
     <>
+      <FormField
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Description</FormLabel>
+            <FormControl>
+              <Textarea {...field}></Textarea>
+            </FormControl>
+            <FormDescription>This is your post description</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="image"
+        render={() => (
+          <FormItem>
+            <FormLabel>Image</FormLabel>
+            <FormControl>
+              <div
+                className="flex justify-center rounded-md border-2 border-dashed px-6 pb-6 pt-5"
+                {...getRootProps()}
+              >
+                <div className="space-y-1 text-center">
+                  {previewThumbnail ? (
+                    error ? (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>{error.name}</AlertTitle>
+                        <AlertDescription>
+                          {error.message}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={retryUpload}
+                            className="ml-2"
+                          >
+                            Retry
+                          </Button>
+                        </AlertDescription>
+                      </Alert>
+                    ) : (
+                      <img
+                        src={previewThumbnail.toString()}
+                        className="my-auto max-h-72 w-auto rounded-lg"
+                        alt="Preview"
+                      />
+                    )
+                  ) : (
+                    <ImagePlus className="mx-auto h-12 w-12" strokeWidth="1" />
+                  )}
+                  <Paragraph className="flex items-center">
+                    <FormLabel htmlFor="image">
+                      <span className="text-primary">
+                        Upload a image &nbsp;
+                      </span>
+                      <input
+                        id="image"
+                        name="image"
+                        type="file"
+                        className="sr-only"
+                        required
+                        {...getInputProps()}
+                        disabled={isUploading}
+                      />
+                    </FormLabel>
+                    <span>or drag and drop</span>
+                  </Paragraph>
+                  <MutedText>PNG, JPG, GIF up to 16MB</MutedText>
+                </div>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       <FormField
         control={control}
         name="price"
@@ -376,64 +477,59 @@ function ActivityOfferForm() {
           <FormItem>
             <FormLabel>Price</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Money, money, money"></Input>
+              <Input
+                {...field}
+                type="number"
+                inputMode="numeric"
+                pattern="^\d*(\.\d{0,2})?$"
+                min="0"
+              ></Input>
             </FormControl>
-            <FormDescription>Set price of this item</FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="category"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Category</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="e.g. 'automotive'"></Input>
-            </FormControl>
-            <FormDescription>Set category</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="condition"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Condition</FormLabel>
-            <FormControl>
-              <Select {...field}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select condition" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="NEW">New</SelectItem>
-                  <SelectItem value="USED">Used</SelectItem>
-                  <SelectItem value="UNKNOWN">Unknown</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormDescription>Set condition</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="image"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Image</FormLabel>
-            <FormControl>
-              <Input {...field}></Input>
-            </FormControl>
-            <FormDescription>Send pic plz</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+
+      <div className="flex space-x-6">
+        <FormField
+          control={control}
+          name="category"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Category</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="e.g. 'automotive'"></Input>
+              </FormControl>
+              <FormDescription>Set category</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="condition"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Condition</FormLabel>
+              <FormControl>
+                <Select {...field}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NEW">New</SelectItem>
+                    <SelectItem value="USED">Used</SelectItem>
+                    <SelectItem value="UNKNOWN">Unknown</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormDescription>Set condition</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </>
   );
 }
@@ -464,6 +560,7 @@ function ActivityPollForm() {
           </FormItem>
         )}
       />
+
       {options.fields.map((field, optionIndex) => (
         <div className="space-y-6" key={field.id}>
           <div className="flex items-end space-x-6">
@@ -491,6 +588,7 @@ function ActivityPollForm() {
           </div>
         </div>
       ))}
+
       <Button
         type="button"
         variant="outline"
