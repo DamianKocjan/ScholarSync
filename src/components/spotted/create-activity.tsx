@@ -1,9 +1,10 @@
-import { LucideX } from "lucide-react";
+import { format } from "date-fns";
+import { CalendarIcon, LucideX } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import z from "zod";
 
-import { useRouter } from "next/router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -24,6 +25,11 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -33,6 +39,7 @@ import {
 import { Textarea } from "~/components/ui/textarea";
 import { SmallText } from "~/components/ui/typography";
 import { useForm } from "~/hooks/use-form";
+import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 
 const createActivitySchema = z.union([
@@ -189,7 +196,7 @@ export function CreateActivity() {
             </div>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="space-y-6">
             <FormField
               control={form.control}
               name="description"
@@ -228,7 +235,8 @@ export function CreateActivity() {
 }
 
 function ActivityEventForm() {
-  const { control } = useFormContext();
+  const { control, getValues } = useFormContext();
+  const from = getValues("from");
 
   return (
     <>
@@ -249,48 +257,95 @@ function ActivityEventForm() {
           </FormItem>
         )}
       />
-      <div className="flex w-full flex-row justify-between">
-        <div className="w-full">
-          <FormField
-            control={control}
-            name="from"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Date</FormLabel>
-                <FormControl>
+
+      <div className="flex space-x-6">
+        <FormField
+          control={control}
+          name="from"
+          render={({ field }) => (
+            <FormItem className="flex w-full flex-col">
+              <FormLabel>From</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground",
+                      )}
+                    >
+                      {field.value ? (
+                        format(new Date(field.value as string), "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    {...field}
                     mode="single"
-                    className="w-min rounded-md border bg-gray-200"
+                    selected={new Date(field.value as string)}
+                    onSelect={(date) => field.onChange(date?.toISOString())}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
                   />
-                </FormControl>
-                <FormDescription>Select start date of event</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="w-full">
-          <FormField
-            control={control}
-            name="to"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Date</FormLabel>
-                <FormControl>
+                </PopoverContent>
+              </Popover>
+
+              <FormDescription>Select start date of event</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="to"
+          render={({ field }) => (
+            <FormItem className="flex w-full flex-col">
+              <FormLabel>End</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground",
+                      )}
+                    >
+                      {field.value ? (
+                        format(new Date(field.value as string), "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    {...field}
                     mode="single"
-                    className="w-min rounded-md border bg-gray-200"
+                    selected={new Date(field.value as string)}
+                    onSelect={(date) => field.onChange(date?.toISOString())}
+                    disabled={(date) =>
+                      date < new Date() ||
+                      date < new Date((from as string) ?? null)
+                    }
+                    initialFocus
                   />
-                </FormControl>
-                <FormDescription>Select end date of event</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+                </PopoverContent>
+              </Popover>
+
+              <FormDescription>Select end date of event</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
+
       <FormField
         control={control}
         name="location"
