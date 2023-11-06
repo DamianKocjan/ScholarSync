@@ -31,15 +31,6 @@ export function MainNav({
         Home
       </Link>
       <Link
-        href="/spotted"
-        className={cn(
-          "text-sm font-medium transition-colors hover:text-primary",
-          isActive("/spotted") ? "" : "text-muted-foreground",
-        )}
-      >
-        Spotted
-      </Link>
-      <Link
         href="/notes"
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",

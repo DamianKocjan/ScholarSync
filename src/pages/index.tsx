@@ -1,11 +1,15 @@
-import { CreateActivity } from "~/components/spotted/create-activity";
+import { NextSeo } from "next-seo";
+
+import { Feed } from "~/components/spotted/feed";
 
 export default function Home() {
   return (
     <>
-      <div className="flex flex-col items-center justify-center p-10">
-        <CreateActivity />
-      </div>
+      <NextSeo title="Spotted" />
+
+      <main className="flex flex-col items-center">
+        <Feed withCreate />
+      </main>
     </>
   );
 }
