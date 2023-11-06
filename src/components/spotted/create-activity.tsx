@@ -58,17 +58,17 @@ const createActivitySchema = z.union([
     type: z.literal("RADIO_SUBMISSION"),
     title: z.string(),
     content: z.string(),
-    link: z
-      .string()
-      .startsWith("https://www.youtube.com/watch?v=", {
-        message: "Invalid link",
-      })
-      .startsWith("https://youtu.be/", {
-        message: "Invalid link",
-      })
-      .startsWith("https://open.spotify.com/track/", {
+    link: z.union([
+      z.string().startsWith("https://www.youtube.com/watch?v=", {
         message: "Invalid link",
       }),
+      z.string().startsWith("https://youtu.be/", {
+        message: "Invalid link",
+      }),
+      z.string().startsWith("https://open.spotify.com/track/", {
+        message: "Invalid link",
+      }),
+    ]),
   }),
   z.object({
     type: z.literal("OFFER"),
