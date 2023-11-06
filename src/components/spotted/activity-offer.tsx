@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,12 +11,12 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import {
-  H2,
+  LargeText,
   MutedText,
   Paragraph,
   SmallText,
 } from "~/components/ui/typography";
-import { cn } from "~/lib/utils";
+import { useCurrencyFormatter } from "~/hooks/use-currency-formatter";
 
 const DynamicCommentSection = dynamic(
   () => import("./comment-section").then((mod) => mod.CommentSection),
@@ -59,6 +60,7 @@ export function ActivityOffer({
   _count,
 }: ActivityOfferProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
+  const formatter = useCurrencyFormatter();
 
   return (
     <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col bg-slate-100 p-2">
@@ -82,30 +84,32 @@ export function ActivityOffer({
       </CardHeader>
 
       <CardContent>
-        <CardTitle className="text-xl">
-          <H2>
-            {title} - {price.toString()}
-          </H2>
-        </CardTitle>
-        <MutedText>
-          Category: {category} Condition {condition}
-        </MutedText>
-        <p>{description}</p>
+        <CardTitle className="break-all">{title}</CardTitle>
+
+        <div className="mt-2 flex items-center justify-between">
+          <LargeText>{formatter.format(price)}</LargeText>
+
+          <MutedText>
+            {category} - {condition.toLowerCase()}
+          </MutedText>
+        </div>
+
+        <Paragraph>{description}</Paragraph>
+
         <img src={image} className="mt-7 max-h-[30rem] min-h-[10rem] w-full" />
       </CardContent>
 
       <CardFooter className="flex justify-between">
         <DynamicInteractions model="OFFER" modelId={id} />
 
-        <button
-          className={cn(
-            "text-sm",
-            openCommentSection ? "text-gray-700" : "text-gray-500",
-          )}
+        <Button
+          type="button"
+          variant="ghost"
+          className={openCommentSection ? "" : "text-gray-500"}
           onClick={() => setOpenCommentSection((val) => !val)}
         >
           {_count.comments} Comments
-        </button>
+        </Button>
       </CardFooter>
       {openCommentSection ? (
         <DynamicCommentSection model="OFFER" modelId={id} />

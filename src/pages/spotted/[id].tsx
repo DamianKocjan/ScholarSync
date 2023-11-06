@@ -5,6 +5,8 @@ import {
 } from "next";
 import { NextSeo } from "next-seo";
 
+import { Activity } from "~/components/spotted/activity";
+import { Feed } from "~/components/spotted/feed";
 import { getServerAuthSession } from "~/server/auth";
 
 export default function SpottedActivityDetail({
@@ -13,28 +15,27 @@ export default function SpottedActivityDetail({
   return (
     <>
       <NextSeo
+        title={`Spotted - ${activity.title}`}
         description={
-          activity.type === "post"
+          "content" in activity
             ? activity.content.slice(0, 150) + "..."
             : activity.description.slice(0, 150) + "..."
         }
       />
-      <main className="flex flex-col items-center">
-        <div className="w-2/3 space-y-6">
-          <div className="flex items-center justify-between space-y-2">
-            <H1>Spotted</H1>
-          </div>
-
-          <div className="flex flex-col space-y-4">
-            <div className="flex flex-col space-y-2">
-              <H3>{activity.title}</H3>
-              <MutedText>{activity.createdAt}</MutedText>
-            </div>
-            <div className="flex flex-col space-y-2">
-              <p>{activity.description}</p>
-            </div>
-          </div>
+      <main className="flex flex-col items-center space-y-6">
+        <div className="mx-auto flex max-w-xl flex-col">
+          <Activity
+            {...activity}
+            createdAt={new Date(activity.createdAt)}
+            updatedAt={new Date(activity.updatedAt)}
+            // @ts-expect-error this is fine
+            from={"from" in activity ? new Date(activity.from) : undefined}
+            // @ts-expect-error this is fine
+            to={"to" in activity ? new Date(activity.to) : undefined}
+          />
         </div>
+
+        <Feed exclude={activity.id} />
       </main>
     </>
   );
@@ -80,7 +81,13 @@ export const getServerSideProps = async ({
     activityDetail = await prisma.offer.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
         _count: {
           select: {
             interactions: true,
@@ -100,7 +107,13 @@ export const getServerSideProps = async ({
     activityDetail = await prisma.post.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
         _count: {
           select: {
             interactions: true,
@@ -113,7 +126,13 @@ export const getServerSideProps = async ({
     activityDetail = await prisma.event.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
         _count: {
           select: {
             interactions: true,
@@ -134,7 +153,13 @@ export const getServerSideProps = async ({
     activityDetail = await prisma.poll.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
         _count: {
           select: {
             interactions: true,
@@ -154,7 +179,7 @@ export const getServerSideProps = async ({
     props: {
       activity: {
         ...activityDetail,
-        type: activity.type,
+        type: activity.type as "OFFER" | "POST" | "EVENT" | "POLL",
         createdAt: activityDetail?.createdAt.toISOString(),
         updatedAt: activityDetail?.updatedAt.toISOString(),
       },

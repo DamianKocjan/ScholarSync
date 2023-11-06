@@ -64,7 +64,13 @@ export const feedRouter = createTRPCRouter({
             item = await ctx.db.offer.findUnique({
               where: { id: contentItem.id },
               include: {
-                user: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  },
+                },
                 _count: {
                   select: {
                     comments: true,
@@ -76,7 +82,13 @@ export const feedRouter = createTRPCRouter({
             item = await ctx.db.post.findUnique({
               where: { id: contentItem.id },
               include: {
-                user: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  },
+                },
                 _count: {
                   select: {
                     comments: true,
@@ -88,7 +100,13 @@ export const feedRouter = createTRPCRouter({
             item = await ctx.db.event.findUnique({
               where: { id: contentItem.id },
               include: {
-                user: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  },
+                },
                 _count: {
                   select: {
                     comments: true,
@@ -101,7 +119,13 @@ export const feedRouter = createTRPCRouter({
             item = await ctx.db.poll.findUnique({
               where: { id: contentItem.id },
               include: {
-                user: true,
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  },
+                },
                 _count: {
                   select: {
                     comments: true,

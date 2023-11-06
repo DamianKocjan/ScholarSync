@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,7 +11,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Paragraph, SmallText } from "~/components/ui/typography";
-import { cn } from "~/lib/utils";
 
 const DynamicCommentSection = dynamic(
   () => import("./comment-section").then((mod) => mod.CommentSection),
@@ -70,22 +70,22 @@ export function ActivityPost({
       </CardHeader>
 
       <CardContent>
-        <CardTitle>{title}</CardTitle>
-        <Paragraph>{content}</Paragraph>
+        <CardTitle className="break-all">{title}</CardTitle>
+
+        <Paragraph className="mt-2">{content}</Paragraph>
       </CardContent>
 
       <CardFooter className="flex justify-between">
         <DynamicInteractions model="POST" modelId={id} />
 
-        <button
-          className={cn(
-            "text-sm",
-            openCommentSection ? "text-gray-700" : "text-gray-500",
-          )}
+        <Button
+          type="button"
+          variant="ghost"
+          className={openCommentSection ? "" : "text-gray-500"}
           onClick={() => setOpenCommentSection((val) => !val)}
         >
           {_count.comments} Comments
-        </button>
+        </Button>
       </CardFooter>
       {openCommentSection ? (
         <DynamicCommentSection model="POST" modelId={id} />

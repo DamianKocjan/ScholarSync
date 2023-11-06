@@ -1,7 +1,8 @@
-import { Check } from "lucide-react";
+import { Check, Info } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -13,7 +14,6 @@ import {
 } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Paragraph, SmallText } from "~/components/ui/typography";
-import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 
 const DynamicCommentSection = dynamic(
@@ -105,20 +105,28 @@ export function ActivityPoll({
       </CardHeader>
 
       <CardContent>
-        <CardTitle>{title}</CardTitle>
-        <Paragraph>{description}</Paragraph>
+        <CardTitle className="break-all">{title}</CardTitle>
 
-        <div>
+        <Paragraph className="mt-2">{description}</Paragraph>
+
+        <div className="mt-2 space-y-4">
           {pollOptionsLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="mt-4 flex" />
             ))
           ) : pollOptionsError ? (
-            <div className="text-red-500">{pollOptionsErrorData?.message}</div>
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>
+                {pollOptionsErrorData?.message ?? "Something went wrong"}
+              </AlertDescription>
+            </Alert>
           ) : (
             pollOptions?.result.map((option) => (
               <Button
                 key={option.id}
+                className="w-full"
                 disabled={isLoading}
                 onClick={async () =>
                   await vote({
@@ -127,13 +135,13 @@ export function ActivityPoll({
                   })
                 }
               >
-                <span className="text-gray-900">{option.title}</span>
-                <span className="flex items-center gap-2 text-gray-500">
-                  {option.votes.length > 0 && (
-                    <Check className="h-5 w-5 text-primary" />
-                  )}
-                  {option._count.votes > 0 && option._count.votes}
-                </span>
+                {option.votes.length > 0 ? (
+                  <Check className="mr-2 h-5 w-5 text-secondary" />
+                ) : null}
+                {option.title}
+                {option.votes.length > 0
+                  ? ` (${option.votes.length} votes)`
+                  : null}
               </Button>
             ))
           )}
@@ -148,15 +156,14 @@ export function ActivityPoll({
       <CardFooter className="flex justify-between">
         <DynamicInteractions model="POLL" modelId={id} />
 
-        <button
-          className={cn(
-            "text-sm",
-            openCommentSection ? "text-gray-700" : "text-gray-500",
-          )}
+        <Button
+          type="button"
+          variant="ghost"
+          className={openCommentSection ? "" : "text-gray-500"}
           onClick={() => setOpenCommentSection((val) => !val)}
         >
           {_count.comments} Comments
-        </button>
+        </Button>
       </CardFooter>
       {openCommentSection ? (
         <DynamicCommentSection model="POLL" modelId={id} />

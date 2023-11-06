@@ -120,7 +120,7 @@ export default function NoteDetail() {
               return (
                 <div className="flex space-x-6" key={section.id}>
                   <div className="w-1/3 space-y-6 border-r pr-6">
-                    <H1>{data.title}</H1>
+                    <H1 className="break-all">{data.title}</H1>
 
                     <Paragraph>{data.description}</Paragraph>
 
@@ -242,7 +242,7 @@ function Section({
       </H2>
 
       <div
-        className="prose lg:prose-md leading-relaxed"
+        className="lg:prose-md prose leading-relaxed"
         dangerouslySetInnerHTML={{ __html: content ?? "" }}
       />
 

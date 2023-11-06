@@ -10,8 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Paragraph, SmallText } from "~/components/ui/typography";
-import { cn } from "~/lib/utils";
+import { MutedText, Paragraph, SmallText } from "~/components/ui/typography";
 import { api } from "~/utils/api";
 
 const DynamicCommentSection = dynamic(
@@ -62,7 +61,7 @@ export function ActivityEvent({
       refetchOnWindowFocus: false,
     },
   );
-  const { mutateAsync } = api.event.interestedIn.useMutation({
+  const { mutateAsync: takePartInEvent } = api.event.interestedIn.useMutation({
     async onSuccess() {
       await refetch();
     },
@@ -90,18 +89,20 @@ export function ActivityEvent({
       </CardHeader>
 
       <CardContent>
-        <CardTitle>{title}</CardTitle>
-        <SmallText>
-          {from.toLocaleDateString()} - {to.toLocaleDateString()} {location}
-        </SmallText>
+        <CardTitle className="break-all">{title}</CardTitle>
+
+        <MutedText className="mt-2">
+          {from.toLocaleDateString()} - {to.toLocaleDateString()}: {location}
+        </MutedText>
+
         <Paragraph>{description}</Paragraph>
 
         {data !== undefined && (
           <Button
             type="button"
-            className="mt-2"
+            className="mt-2 w-full"
             onClick={async () =>
-              await mutateAsync({
+              await takePartInEvent({
                 eventId: id,
               })
             }
@@ -115,15 +116,14 @@ export function ActivityEvent({
       <CardFooter className="flex justify-between">
         <DynamicInteractions model="EVENT" modelId={id} />
 
-        <button
-          className={cn(
-            "text-sm",
-            openCommentSection ? "text-gray-700" : "text-gray-500",
-          )}
+        <Button
+          type="button"
+          variant="ghost"
+          className={openCommentSection ? "" : "text-gray-500"}
           onClick={() => setOpenCommentSection((val) => !val)}
         >
           {_count.comments} Comments
-        </button>
+        </Button>
       </CardFooter>
       {openCommentSection ? (
         <DynamicCommentSection model="EVENT" modelId={id} />

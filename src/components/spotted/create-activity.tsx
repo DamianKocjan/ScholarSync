@@ -202,14 +202,13 @@ export function CreateActivity() {
           <CardContent className="space-y-6">
             <FormField
               control={form.control}
-              name="description"
+              name="title"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Post title" {...field} />
+                    <Input placeholder="Title" {...field} />
                   </FormControl>
-                  <FormDescription>This is your post title.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -245,17 +244,13 @@ function ActivityEventForm() {
     <>
       <FormField
         control={control}
-        name="content"
+        name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Content</FormLabel>
+            <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea
-                {...field}
-                placeholder="What's on your mind?"
-              ></Textarea>
+              <Textarea {...field} />
             </FormControl>
-            <FormDescription>This is your post description</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -357,9 +352,8 @@ function ActivityEventForm() {
           <FormItem>
             <FormLabel>Location</FormLabel>
             <FormControl>
-              <Input {...field} placeholder="Where are we going?"></Input>
+              <Input {...field} placeholder="Where are we going?" />
             </FormControl>
-            <FormDescription>This is location of event</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -369,7 +363,7 @@ function ActivityEventForm() {
 }
 
 function ActivityOfferForm() {
-  const { control, setValue } = useFormContext();
+  const { control } = useFormContext();
   const { error, isUploading, startUpload } = useActivityUpload();
 
   const handleUploadImage = async (file: File) => {
@@ -396,9 +390,8 @@ function ActivityOfferForm() {
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea {...field}></Textarea>
+              <Textarea {...field} />
             </FormControl>
-            <FormDescription>This is your post description</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -479,11 +472,12 @@ function ActivityOfferForm() {
             <FormControl>
               <Input
                 {...field}
+                onChange={(e) => field.onChange(Number(e.target.value))}
                 type="number"
                 inputMode="numeric"
                 pattern="^\d*(\.\d{0,2})?$"
                 min="0"
-              ></Input>
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -498,9 +492,8 @@ function ActivityOfferForm() {
             <FormItem className="w-full">
               <FormLabel>Category</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g. 'automotive'"></Input>
+                <Input {...field} placeholder="Travel" />
               </FormControl>
-              <FormDescription>Set category</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -513,7 +506,10 @@ function ActivityOfferForm() {
             <FormItem className="w-full">
               <FormLabel>Condition</FormLabel>
               <FormControl>
-                <Select {...field}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select condition" />
                   </SelectTrigger>
@@ -524,7 +520,6 @@ function ActivityOfferForm() {
                   </SelectContent>
                 </Select>
               </FormControl>
-              <FormDescription>Set condition</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -545,17 +540,13 @@ function ActivityPollForm() {
     <>
       <FormField
         control={control}
-        name="content"
+        name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Content</FormLabel>
+            <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea
-                {...field}
-                placeholder="What's on your mind?"
-              ></Textarea>
+              <Textarea {...field} />
             </FormControl>
-            <FormDescription>This is your post description</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -616,9 +607,8 @@ function ActivityPostForm() {
         <FormItem>
           <FormLabel>Content</FormLabel>
           <FormControl>
-            <Textarea {...field} placeholder="What's on your mind?"></Textarea>
+            <Textarea {...field} placeholder="What's on your mind?" />
           </FormControl>
-          <FormDescription>This is your post description</FormDescription>
           <FormMessage />
         </FormItem>
       )}
