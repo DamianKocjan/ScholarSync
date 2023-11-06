@@ -25,27 +25,29 @@ const DynamicInteractions = dynamic(
   },
 );
 
-export interface ActivityPostProps {
-  type: "POST";
+export interface ActivityRadioSubmissionProps {
+  type: "RADIO_SUBMISSION";
   id: string;
   title: string;
   content: string;
   createdAt: Date;
   updatedAt: Date;
+  link: string;
   user: { name: string | null; image: string | null };
   _count: {
     comments: number;
   };
 }
 
-export function ActivityPost({
+export function ActivityRadioSubmission({
   id,
   user,
   createdAt,
   title,
   content,
+  link,
   _count,
-}: ActivityPostProps) {
+}: ActivityRadioSubmissionProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
 
   return (
@@ -76,7 +78,7 @@ export function ActivityPost({
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <DynamicInteractions model="POST" modelId={id} />
+        <DynamicInteractions model="RADIO_SUBMISSION" modelId={id} />
 
         <Button
           type="button"
@@ -88,7 +90,7 @@ export function ActivityPost({
         </Button>
       </CardFooter>
       {openCommentSection ? (
-        <DynamicCommentSection model="POST" modelId={id} />
+        <DynamicCommentSection model="RADIO_SUBMISSION" modelId={id} />
       ) : null}
     </Card>
   );

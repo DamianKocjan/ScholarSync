@@ -123,6 +123,25 @@ export const getServerSideProps = async ({
         },
       },
     });
+  } else if (activity.type === "RADIO_SUBMISSION") {
+    activityDetail = await prisma.radioSubmission.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        _count: {
+          select: {
+            interactions: true,
+            comments: true,
+          },
+        },
+      },
+    });
   } else if (activity.type === "EVENT") {
     activityDetail = await prisma.event.findUnique({
       where: { id },
@@ -180,7 +199,12 @@ export const getServerSideProps = async ({
     props: {
       activity: {
         ...activityDetail,
-        type: activity.type as "OFFER" | "POST" | "EVENT" | "POLL",
+        type: activity.type as
+          | "OFFER"
+          | "POST"
+          | "EVENT"
+          | "POLL"
+          | "RADIO_SUBMISSION",
         createdAt: activityDetail?.createdAt.toISOString(),
         updatedAt: activityDetail?.updatedAt.toISOString(),
       },
