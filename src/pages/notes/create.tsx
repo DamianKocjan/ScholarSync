@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { useFieldArray } from "react-hook-form";
@@ -11,6 +12,8 @@ import { createNoteSchema } from "~/schemas/note";
 import { api } from "~/utils/api";
 
 export default function NoteCreate() {
+  useSession({ required: true });
+
   const router = useRouter();
   const form = useForm({
     schema: createNoteSchema,

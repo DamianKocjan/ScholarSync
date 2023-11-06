@@ -1,4 +1,5 @@
 import { AlertCircle } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 
@@ -11,6 +12,8 @@ import { H1, H3, MutedText } from "~/components/ui/typography";
 import { api } from "~/utils/api";
 
 export default function Notes() {
+  useSession({ required: true });
+
   return (
     <>
       <NextSeo title="Notes" />

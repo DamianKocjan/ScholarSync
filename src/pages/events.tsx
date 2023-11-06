@@ -1,6 +1,7 @@
 import { addMonths, format, getDay, parse, startOfWeek } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { Info, Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -40,6 +41,8 @@ const localizer = dateFnsLocalizer({
 });
 
 export default function Events() {
+  useSession({ required: true });
+
   const [openCreatePopup, setOpenCreatePopup] = useState(false);
   const [openDetailPopup, setOpenDetailPopup] = useState(false);
   const [eventId, setEventId] = useState("");

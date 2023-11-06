@@ -29,6 +29,8 @@ import { parseId } from "~/utils/parse-id";
 import { shuffleArray } from "~/utils/shuffle-array";
 
 export default function NoteDetail() {
+  useSession({ required: true });
+
   const router = useRouter();
   const id = router.query.id as string;
   const { data: sessionData } = useSession();

@@ -3,6 +3,7 @@ import {
   type GetServerSidePropsContext,
   type InferGetServerSidePropsType,
 } from "next";
+import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 
 import { Activity } from "~/components/spotted/activity";
@@ -12,6 +13,8 @@ import { getServerAuthSession } from "~/server/auth";
 export default function SpottedActivityDetail({
   activity,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  useSession({ required: true });
+
   return (
     <>
       <NextSeo
