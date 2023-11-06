@@ -36,7 +36,6 @@ export interface ActivityPollProps {
   createdAt: Date;
   updatedAt: Date;
   user: { name: string | null; image: string | null };
-  userId: string;
   _count: {
     comments: number;
     votes: number;

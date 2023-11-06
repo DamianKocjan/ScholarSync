@@ -69,6 +69,7 @@ export const Feed: React.FC<FeedProps> = ({ exclude, type, withCreate }) => {
         <>
           {data?.pages.map((page) =>
             page.items.map((item) => (
+              // @ts-expect-error this is fine
               <Activity
                 key={item.id}
                 {...(item as ActivityProps)}

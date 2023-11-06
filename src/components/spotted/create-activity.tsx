@@ -429,7 +429,7 @@ function ActivityOfferForm() {
                       </Alert>
                     ) : (
                       <img
-                        src={previewThumbnail.toString()}
+                        src={(previewThumbnail as string).toString()}
                         className="my-auto max-h-72 w-auto rounded-lg"
                         alt="Preview"
                       />
