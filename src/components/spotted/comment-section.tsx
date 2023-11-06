@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
-import { Paragraph, SmallText } from "~/components/ui/typography";
+import { MutedText, Paragraph, SmallText } from "~/components/ui/typography";
 import { useForm } from "~/hooks/use-form";
 import { useFormatRelativeDate } from "~/hooks/use-format-relative-date";
 import { api } from "~/utils/api";
@@ -56,7 +56,7 @@ export const CommentSection: React.FC<CommentsProps> = ({ model, modelId }) => {
   }, [refetch]);
 
   return (
-    <div className="px-4 py-4 sm:px-6">
+    <div className="space-y-6 px-4 py-4 sm:px-6">
       <CommentInput model={model} modelId={modelId} refetch={refetchComments} />
       {isLoading ? (
         <div className="flex items-center text-sm text-muted-foreground">
@@ -111,8 +111,8 @@ function Comment({ id, content, createdAt, user }: CommentProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-col">
-        <Avatar className="h-12 w-12">
+      <CardHeader className="flex flex-row items-center space-x-4">
+        <Avatar>
           <AvatarImage src={user.image ?? ""} alt={user.name ?? "??"} />
           <AvatarFallback>
             {user.name
@@ -121,12 +121,10 @@ function Comment({ id, content, createdAt, user }: CommentProps) {
               : "??"}
           </AvatarFallback>
         </Avatar>
-        <div className="flex flex-row">
-          {user.name}
-          <SmallText>{dateFormatter(createdAt)}</SmallText>
-        </div>
+        <SmallText className="flex-1">{user.name}</SmallText>
+        <MutedText>{dateFormatter(createdAt)}</MutedText>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         <Paragraph>{content}</Paragraph>
 
         <DynamicInteractions model="COMMENT" modelId={id} />
@@ -152,7 +150,7 @@ function CommentInput({ model, modelId, refetch }: CommentInputProps) {
   });
   const mutation = api.comment.create.useMutation({
     async onSuccess() {
-      form.reset();
+      form.setValue("content", "");
       await refetch();
     },
   });
@@ -169,52 +167,45 @@ function CommentInput({ model, modelId, refetch }: CommentInputProps) {
   });
 
   return (
-    <div className="flex items-start space-x-4">
-      <div className="flex-shrink-0">
-        <Avatar className="h-12 w-12">
-          <AvatarImage
-            src={sessionData?.user.image ?? undefined}
-            alt={sessionData?.user.name ?? undefined}
-          />
-          <AvatarFallback>
-            {sessionData?.user.name
-              ? sessionData.user.name?.charAt(0).toUpperCase() +
-                sessionData.user.name?.charAt(1).toUpperCase()
-              : "??"}
-          </AvatarFallback>
-        </Avatar>
-      </div>
-      <div className="min-w-0 flex-1">
-        <Form {...form}>
-          <form onSubmit={handleSubmit}>
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Add your comment</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Add your comment..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="flex space-x-4">
+      <Avatar className="h-12 w-12">
+        <AvatarImage
+          src={sessionData?.user.image ?? undefined}
+          alt={sessionData?.user.name ?? undefined}
+        />
+        <AvatarFallback>
+          {sessionData?.user.name
+            ? sessionData.user.name?.charAt(0).toUpperCase() +
+              sessionData.user.name?.charAt(1).toUpperCase()
+            : "??"}
+        </AvatarFallback>
+      </Avatar>
 
-            <div className="flex justify-between pt-2">
-              <div className="flex items-center space-x-5">
-                <div className="flow-root"></div>
-                <div className="flow-root"></div>
-              </div>
-              <div className="flex-shrink-0">
-                <Button type="submit" variant="outline">
-                  Comment
-                </Button>
-              </div>
-            </div>
-          </form>
-        </Form>
-      </div>
+      <Form {...form}>
+        <form className="w-full space-y-2" onSubmit={handleSubmit}>
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Add your comment</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Add your comment..."
+                    className="w-full"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button className="float-right" type="submit" variant="outline">
+            Comment
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }
