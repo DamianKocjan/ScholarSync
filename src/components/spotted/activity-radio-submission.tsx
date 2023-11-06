@@ -51,7 +51,7 @@ export function ActivityRadioSubmission({
   const [openCommentSection, setOpenCommentSection] = useState(false);
 
   return (
-    <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col bg-slate-100 p-2">
+    <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col p-2">
       <CardHeader>
         <div className="flex-column flex items-center gap-2">
           <Avatar className="h-12 w-12">
@@ -75,6 +75,29 @@ export function ActivityRadioSubmission({
         <CardTitle className="break-all">{title}</CardTitle>
 
         <Paragraph className="mt-2">{content}</Paragraph>
+
+        {link.startsWith("https://www.youtube.com/watch?v=") ? (
+          <iframe
+            // src="https://www.youtube.com/embed/E7wJTI-1dvQ"
+            src={link.replace("watch?v=", "embed/")}
+            className="mt-2 h-96 w-full"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        ) : link.startsWith("https://open.spotify.com/track/") ? (
+          <iframe
+            // src="https://open.spotify.com/embed/track/79esEXlqqmq0GPz0xQSZTV?utm_source=discord&utm_medium=desktop"
+            src={link.replace(
+              "https://open.spotify.com/track/",
+              "https://open.spotify.com/embed/track/",
+            )}
+            className="mt-2 h-20 w-full rounded-xl"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+          />
+        ) : null}
       </CardContent>
 
       <CardFooter className="flex justify-between">
