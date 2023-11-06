@@ -77,12 +77,10 @@ export const noteRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       try {
         const { id } = input;
-        const { user } = ctx.session;
 
         const note = await ctx.db.note.findFirst({
           where: {
             id,
-            userId: user.id,
           },
           select: {
             id: true,
