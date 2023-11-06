@@ -40,6 +40,15 @@ export function MainNav({
         Notes
       </Link>
       <Link
+        href="/events"
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary",
+          isActive("/events") ? "" : "text-muted-foreground",
+        )}
+      >
+        Events
+      </Link>
+      <Link
         href="/radio"
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
