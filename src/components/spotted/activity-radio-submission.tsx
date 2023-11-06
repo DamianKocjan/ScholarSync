@@ -78,8 +78,15 @@ export function ActivityRadioSubmission({
 
         {link.startsWith("https://www.youtube.com/watch?v=") ? (
           <iframe
-            // src="https://www.youtube.com/embed/E7wJTI-1dvQ"
             src={link.replace("watch?v=", "embed/")}
+            className="mt-2 h-96 w-full"
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        ) : link.startsWith("https://youtu.be/") ? (
+          <iframe
+            src={link.replace("youtu.be/", "youtube.com/embed/")}
             className="mt-2 h-96 w-full"
             frameBorder="0"
             allow="autoplay; encrypted-media"
@@ -87,7 +94,6 @@ export function ActivityRadioSubmission({
           />
         ) : link.startsWith("https://open.spotify.com/track/") ? (
           <iframe
-            // src="https://open.spotify.com/embed/track/79esEXlqqmq0GPz0xQSZTV?utm_source=discord&utm_medium=desktop"
             src={link.replace(
               "https://open.spotify.com/track/",
               "https://open.spotify.com/embed/track/",
