@@ -118,7 +118,7 @@ export const feedRouter = createTRPCRouter({
               },
             });
           } else if (contentItem.type === "RADIO_SUBMISSION") {
-            item = await ctx.db.event.findUnique({
+            item = await ctx.db.radioSubmission.findUnique({
               where: { id: contentItem.id },
               include: {
                 user: {
