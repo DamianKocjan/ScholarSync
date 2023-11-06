@@ -395,7 +395,7 @@ function ActivityEventForm() {
   );
 }
 
-function ActivityOfferForm() {
+export function ActivityOfferForm() {
   const { control } = useFormContext();
   const { error, isUploading, startUpload } = useActivityUpload();
 

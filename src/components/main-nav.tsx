@@ -51,6 +51,15 @@ export function MainNav({
         Notes
       </Link>
       <Link
+        href="/marketplace"
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary",
+          isActive("/marketplace") ? "" : "text-muted-foreground",
+        )}
+      >
+        Marketplace
+      </Link>
+      <Link
         href="/events"
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
