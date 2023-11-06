@@ -36,7 +36,7 @@ const DynamicInteractions = dynamic(
 export interface ActivityOfferProps {
   id: string;
   title: string;
-  user: { name: string | null; image: string | null };
+  user: { name: string | null; image: string | null; id: string };
   description: string;
   createdAt: Date;
   updatedAt: Date;
@@ -85,7 +85,9 @@ export function ActivityOffer({
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
 
-          {withRemove ? <RemoveActivity id={id} type="OFFER" /> : null}
+          {withRemove ? (
+            <RemoveActivity id={id} type="OFFER" userId={user.id} />
+          ) : null}
         </div>
       </CardHeader>
 

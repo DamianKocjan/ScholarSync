@@ -37,7 +37,7 @@ export interface ActivityPollProps {
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  user: { name: string | null; image: string | null };
+  user: { name: string | null; image: string | null; id: string };
   _count: {
     comments: number;
     votes: number;
@@ -105,7 +105,9 @@ export function ActivityPoll({
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
 
-          {withRemove ? <RemoveActivity id={id} type="POLL" /> : null}
+          {withRemove ? (
+            <RemoveActivity id={id} type="POLL" userId={user.id} />
+          ) : null}
         </div>
       </CardHeader>
 

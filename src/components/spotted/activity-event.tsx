@@ -37,7 +37,7 @@ export interface ActivityEventProps {
   location: string;
   createdAt: Date;
   updatedAt: Date;
-  user: { name: string | null; image: string | null };
+  user: { name: string | null; image: string | null; id: string };
   _count: {
     comments: number;
   };
@@ -89,7 +89,9 @@ export function ActivityEvent({
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
 
-          {withRemove ? <RemoveActivity id={id} type="EVENT" /> : null}
+          {withRemove ? (
+            <RemoveActivity id={id} type="EVENT" userId={user.id} />
+          ) : null}
         </div>
       </CardHeader>
 

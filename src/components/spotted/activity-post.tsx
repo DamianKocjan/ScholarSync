@@ -34,7 +34,7 @@ export interface ActivityPostProps {
   content: string;
   createdAt: Date;
   updatedAt: Date;
-  user: { name: string | null; image: string | null };
+  user: { name: string | null; image: string | null; id: string };
   _count: {
     comments: number;
   };
@@ -71,7 +71,9 @@ export function ActivityPost({
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
 
-          {withRemove ? <RemoveActivity id={id} type="POST" /> : null}
+          {withRemove ? (
+            <RemoveActivity id={id} type="POST" userId={user.id} />
+          ) : null}
         </div>
       </CardHeader>
 

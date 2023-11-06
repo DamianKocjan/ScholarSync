@@ -35,7 +35,7 @@ export interface ActivityRadioSubmissionProps {
   createdAt: Date;
   updatedAt: Date;
   link: string;
-  user: { name: string | null; image: string | null };
+  user: { name: string | null; image: string | null; id: string };
   _count: {
     comments: number;
   };
@@ -74,7 +74,7 @@ export function ActivityRadioSubmission({
           </div>
 
           {withRemove ? (
-            <RemoveActivity id={id} type="RADIO_SUBMISSION" />
+            <RemoveActivity id={id} type="RADIO_SUBMISSION" userId={user.id} />
           ) : null}
         </div>
       </CardHeader>
