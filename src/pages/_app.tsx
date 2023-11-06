@@ -1,7 +1,9 @@
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import { NextSeo } from "next-seo";
 import { type AppType } from "next/app";
 import { Inter as FontSans } from "next/font/google";
+import Head from "next/head";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -30,6 +32,34 @@ const MyApp: AppType<{ session: Session | null }> = ({
         fontSans.variable,
       )}
     >
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+      </Head>
+
+      <NextSeo
+        titleTemplate="%s | Scholar Sync"
+        defaultTitle="Scholar Sync"
+        description="Scholar Sync is a community platform for students and teachers to share their notes and study materials with each other. It's a place to learn and grow together."
+      />
+
       <ThemeProvider
         attribute="class"
         defaultTheme="system"

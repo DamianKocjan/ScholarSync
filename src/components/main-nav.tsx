@@ -1,3 +1,4 @@
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -8,6 +9,7 @@ export function MainNav({
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
   const router = useRouter();
+  const { theme, systemTheme } = useTheme();
 
   const isActive = (pathname: string) => {
     if (pathname === "/") {
@@ -21,6 +23,15 @@ export function MainNav({
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
       {...props}
     >
+      <Link className="mr-6 flex items-center space-x-2" href="/">
+        <img
+          src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
+          alt="ScholarSync logo"
+          className="h-10"
+        />
+        <span className="hidden font-bold sm:inline-block">Scholar Sync</span>
+      </Link>
+
       <Link
         href="/"
         className={cn(
