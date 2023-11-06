@@ -1,5 +1,11 @@
 import { format } from "date-fns";
-import { AlertCircle, CalendarIcon, ImagePlus, LucideX } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarIcon,
+  ImagePlus,
+  Loader2,
+  LucideX,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -101,11 +107,12 @@ export function CreateActivity() {
   const router = useRouter();
 
   const activityType = form.watch("type");
-  const { mutateAsync: createActivity } = api.feed.create.useMutation({
-    async onSuccess(data) {
-      await router.push(`/spotted/${data.id}`);
-    },
-  });
+  const { mutateAsync: createActivity, isLoading } =
+    api.feed.create.useMutation({
+      async onSuccess(data) {
+        await router.push(`/spotted/${data.id}`);
+      },
+    });
 
   const handleSubmit = form.handleSubmit(async (values) => {
     switch (values.type) {
@@ -259,7 +266,13 @@ export function CreateActivity() {
           </CardContent>
 
           <CardFooter>
-            <Button variant="default" type="submit" className="w-full">
+            <Button
+              variant="default"
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4" /> : null}
               Submit
             </Button>
           </CardFooter>
