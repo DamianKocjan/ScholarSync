@@ -662,7 +662,7 @@ function ActivityPostForm() {
   );
 }
 
-function ActivityRadioSubmissionForm() {
+export function ActivityRadioSubmissionForm() {
   const { control } = useFormContext();
 
   return (
