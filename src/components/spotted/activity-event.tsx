@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/card";
 import { MutedText, Paragraph, SmallText } from "~/components/ui/typography";
 import { api } from "~/utils/api";
+import { RemoveActivity } from "./remove-activity";
 
 const DynamicCommentSection = dynamic(
   () => import("./comment-section").then((mod) => mod.CommentSection),
@@ -40,6 +41,7 @@ export interface ActivityEventProps {
   _count: {
     comments: number;
   };
+  withRemove?: boolean;
 }
 
 export function ActivityEvent({
@@ -52,6 +54,7 @@ export function ActivityEvent({
   location,
   description,
   _count,
+  withRemove,
 }: ActivityEventProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
 
@@ -85,6 +88,8 @@ export function ActivityEvent({
             <Paragraph>{user.name}</Paragraph>
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
+
+          {withRemove ? <RemoveActivity id={id} type="EVENT" /> : null}
         </div>
       </CardHeader>
 

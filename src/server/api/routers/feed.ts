@@ -391,4 +391,66 @@ export const feedRouter = createTRPCRouter({
         id,
       };
     }),
+  remove: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        type: z.enum(["POST", "OFFER", "EVENT", "POLL", "RADIO_SUBMISSION"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, type } = input;
+
+      const activity = await ctx.db.activity.findUnique({
+        where: {
+          id,
+          type,
+        },
+      });
+      if (!activity) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Not found",
+        });
+      }
+
+      // @ts-expect-error This is fine
+      const activityContent = await ctx.db[
+        type === "RADIO_SUBMISSION" ? "radioSubmission" : type.toLowerCase()
+      ].findUnique({
+        where: {
+          id,
+          user: {
+            id: ctx.session.user.id,
+          },
+        },
+      });
+
+      if (!activityContent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Not found",
+        });
+      }
+
+      await ctx.db.$transaction([
+        ctx.db.activity.delete({
+          where: {
+            id,
+          },
+        }),
+        // @ts-expect-error This is fine
+        ctx.db[
+          type === "RADIO_SUBMISSION" ? "radioSubmission" : type.toLowerCase()
+        ].delete({
+          where: {
+            id,
+          },
+        }),
+      ]);
+
+      return {
+        id,
+      };
+    }),
 });

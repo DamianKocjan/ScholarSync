@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Paragraph, SmallText } from "~/components/ui/typography";
+import { RemoveActivity } from "./remove-activity";
 
 const DynamicCommentSection = dynamic(
   () => import("./comment-section").then((mod) => mod.CommentSection),
@@ -37,6 +38,7 @@ export interface ActivityPostProps {
   _count: {
     comments: number;
   };
+  withRemove?: boolean;
 }
 
 export function ActivityPost({
@@ -46,6 +48,7 @@ export function ActivityPost({
   title,
   content,
   _count,
+  withRemove,
 }: ActivityPostProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
 
@@ -67,6 +70,8 @@ export function ActivityPost({
             <Paragraph>{user.name}</Paragraph>
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
+
+          {withRemove ? <RemoveActivity id={id} type="POST" /> : null}
         </div>
       </CardHeader>
 

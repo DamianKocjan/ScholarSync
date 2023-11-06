@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Paragraph, SmallText } from "~/components/ui/typography";
+import { RemoveActivity } from "./remove-activity";
 
 const DynamicCommentSection = dynamic(
   () => import("./comment-section").then((mod) => mod.CommentSection),
@@ -38,6 +39,7 @@ export interface ActivityRadioSubmissionProps {
   _count: {
     comments: number;
   };
+  withRemove?: boolean;
 }
 
 export function ActivityRadioSubmission({
@@ -48,6 +50,7 @@ export function ActivityRadioSubmission({
   content,
   link,
   _count,
+  withRemove,
 }: ActivityRadioSubmissionProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
 
@@ -69,6 +72,10 @@ export function ActivityRadioSubmission({
             <Paragraph>{user.name}</Paragraph>
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
+
+          {withRemove ? (
+            <RemoveActivity id={id} type="RADIO_SUBMISSION" />
+          ) : null}
         </div>
       </CardHeader>
 

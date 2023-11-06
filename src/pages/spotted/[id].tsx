@@ -36,6 +36,7 @@ export default function SpottedActivityDetail({
             from={"from" in activity ? new Date(activity.from) : undefined}
             // @ts-expect-error this is fine
             to={"to" in activity ? new Date(activity.to) : undefined}
+            withRemove
           />
         </div>
 

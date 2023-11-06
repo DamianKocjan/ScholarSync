@@ -18,6 +18,7 @@ import {
   SmallText,
 } from "~/components/ui/typography";
 import { useCurrencyFormatter } from "~/hooks/use-currency-formatter";
+import { RemoveActivity } from "./remove-activity";
 
 const DynamicCommentSection = dynamic(
   () => import("./comment-section").then((mod) => mod.CommentSection),
@@ -46,6 +47,7 @@ export interface ActivityOfferProps {
   _count: {
     comments: number;
   };
+  withRemove?: boolean;
 }
 
 export function ActivityOffer({
@@ -59,6 +61,7 @@ export function ActivityOffer({
   category,
   image,
   _count,
+  withRemove,
 }: ActivityOfferProps) {
   const [openCommentSection, setOpenCommentSection] = useState(false);
   const formatter = useCurrencyFormatter();
@@ -81,6 +84,8 @@ export function ActivityOffer({
             <Paragraph>{user.name}</Paragraph>
             <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
+
+          {withRemove ? <RemoveActivity id={id} type="OFFER" /> : null}
         </div>
       </CardHeader>
 
