@@ -131,14 +131,20 @@ export const interactionRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { model, modelId, type } = input;
+      const { modelId, type } = input;
+      const model = input.model.toLowerCase() as
+        | "post"
+        | "offer"
+        | "event"
+        | "poll"
+        | "comment";
 
       const userInteractions = await ctx.db.interaction.findMany({
         where: {
           [model]: {
             id: modelId,
           },
-          model,
+          model: input.model,
           user: {
             id: ctx.session.user.id,
           },
@@ -166,7 +172,7 @@ export const interactionRouter = createTRPCRouter({
 
       await ctx.db.interaction.create({
         data: {
-          model,
+          model: input.model,
           [model]: {
             connect: {
               id: modelId,

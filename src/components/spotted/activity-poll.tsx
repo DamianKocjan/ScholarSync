@@ -146,7 +146,7 @@ export function ActivityPoll({
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <DynamicInteractions model="EVENT" modelId={id} />
+        <DynamicInteractions model="POLL" modelId={id} />
 
         <button
           className={cn(
@@ -159,7 +159,7 @@ export function ActivityPoll({
         </button>
       </CardFooter>
       {openCommentSection ? (
-        <DynamicCommentSection model="EVENT" modelId={id} />
+        <DynamicCommentSection model="POLL" modelId={id} />
       ) : null}
     </Card>
   );

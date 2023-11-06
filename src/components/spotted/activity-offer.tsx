@@ -95,7 +95,7 @@ export function ActivityOffer({
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <DynamicInteractions model="EVENT" modelId={id} />
+        <DynamicInteractions model="OFFER" modelId={id} />
 
         <button
           className={cn(
@@ -108,7 +108,7 @@ export function ActivityOffer({
         </button>
       </CardFooter>
       {openCommentSection ? (
-        <DynamicCommentSection model="EVENT" modelId={id} />
+        <DynamicCommentSection model="OFFER" modelId={id} />
       ) : null}
     </Card>
   );

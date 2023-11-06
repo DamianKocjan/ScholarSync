@@ -75,7 +75,7 @@ export function ActivityPost({
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <DynamicInteractions model="EVENT" modelId={id} />
+        <DynamicInteractions model="POST" modelId={id} />
 
         <button
           className={cn(
@@ -88,7 +88,7 @@ export function ActivityPost({
         </button>
       </CardFooter>
       {openCommentSection ? (
-        <DynamicCommentSection model="EVENT" modelId={id} />
+        <DynamicCommentSection model="POST" modelId={id} />
       ) : null}
     </Card>
   );
