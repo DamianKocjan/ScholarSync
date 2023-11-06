@@ -638,6 +638,7 @@ function ActivityPostForm() {
     />
   );
 }
+
 function ActivityRadioSubmissionForm() {
   const { control } = useFormContext();
 
