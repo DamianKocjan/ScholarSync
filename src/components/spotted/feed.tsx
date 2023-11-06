@@ -1,88 +1,89 @@
-
+import { AlertCircle, Info, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import React from "react";
-import { api } from "~/utils/api";
-// import { EmptyState } from "../EmptyState";
-// import { ErrorAlert } from "../ErrorAlert";
-// import { InfiniteLoader } from "../InfiniteLoader";
-// import { LoadingSpinner } from "../LoadingSpinner";
-import { ActivityPost } from "./activity-post";
-import { EventPost } from "./event-post";
-import { PollPost } from "./poll-post";
-//TO DO offert
-// const DynamicCreateActivity = dynamic(
-//   () => import("../Activity/Create").then((mod) => mod.CreateActivity),
-//   {
-//     ssr: false,
-//   }
-// );
 
-const ACTIVITY = {post:ActivityPost, event:EventPost, poll:PollPost}
+import { api } from "~/utils/api";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Activity, type ActivityProps, type ActivityType } from "./activity";
+import { InfiniteLoader } from "./infinite-loader";
+
+const DynamicCreateActivity = dynamic(
+  () => import("./create-activity").then((mod) => mod.CreateActivity),
+  {
+    ssr: false,
+  },
+);
+
 interface FeedProps {
-    withCreate?: boolean;
-    exclude?: string;
-    type?: "post" | "ofert" | "event" | "poll";
-  }
-  
-  export const Feed: React.FC<FeedProps> = ({ exclude, type, withCreate }) => {
-    const limit = 14;
-    const {
-      data,
-      error,
-      fetchNextPage,
-      hasNextPage,
-      isError,
-      isLoading,
-      isFetching,
-    } = api.feed.getAll.useInfiniteQuery(
-      {
-        limit,
-        exclude,
-        type,
-      },
-      {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-        refetchOnWindowFocus: false,
-      }
-    );
-  
-    return (
-      <div className="mx-auto flex max-w-xl flex-col gap-4">
-        {withCreate && <DynamicCreateActivity />}
-  
-        {isLoading ? (
-          <div className="flex items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        ) : isError ? (
-          <ErrorAlert
-            title="Something went wrong!"
-            message={error?.message ?? String(error)}
+  withCreate?: boolean;
+  exclude?: string;
+  type?: ActivityType;
+}
+
+export const Feed: React.FC<FeedProps> = ({ exclude, type, withCreate }) => {
+  const limit = 14;
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isLoading,
+    isFetching,
+  } = api.feed.getAll.useInfiniteQuery(
+    {
+      limit,
+      exclude,
+      type,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  return (
+    <div className="mx-auto flex max-w-xl flex-col gap-4">
+      {withCreate && <DynamicCreateActivity />}
+
+      {isLoading ? (
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Loading...
+        </div>
+      ) : isError ? (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error?.message}</AlertDescription>
+        </Alert>
+      ) : data?.pages?.[0]?.items.length === 0 ? (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>No posts yet</AlertTitle>
+          <AlertDescription>
+            Seems like there are no posts yet.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          {data?.pages.map((page) =>
+            page.items.map((item) => (
+              // @ts-expect-error this is fine
+              <Activity
+                key={item.id}
+                {...(item as ActivityProps)}
+                type={item.type as ActivityType}
+              />
+            )),
+          )}
+          <InfiniteLoader
+            callback={() => fetchNextPage()}
+            isFetching={isFetching}
+            hasNextPage={hasNextPage ?? false}
           />
-        ) : data?.pages?.[0]?.items.length === 0 ? (
-          <EmptyState
-            title="No posts yet"
-            description="Seems like there are no posts yet."
-          />
-        ) : (
-          <>
-            {data !== undefined &&
-              data.pages.map((page) =>
-                page.items.map((item) => (
-                  <ActivityPost
-                    key={item.id}
-                    {...(item as ActivityPostProps)}
-                    type={item.type as ActivityType}
-                  />
-                ))
-              )}
-            <InfiniteLoader
-              callback={() => fetchNextPage()}
-              isFetching={isFetching}
-              hasNextPage={hasNextPage ?? false}
-            />
-          </>
-        )}
-      </div>
-    );
-  };
+        </>
+      )}
+    </div>
+  );
+};

@@ -1,10 +1,11 @@
-import { Download, Share2 } from "lucide-react";
+import { AlertCircle, Download, Share2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Head from "next/head";
+import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -105,14 +106,18 @@ export default function NoteDetail() {
     return <div>Loading...</div>;
   }
   if (isError) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error?.message}</AlertDescription>
+      </Alert>
+    );
   }
   return (
     <>
-      <Head>
-        {/* TODO: SEO */}
-        <title>Note</title>
-      </Head>
+      <NextSeo title={data.title} description={data.description ?? ""} />
+
       <main className="flex flex-col items-center">
         <div className="w-2/3 space-y-6">
           {data.sections.map((section, idx) => {
@@ -120,7 +125,7 @@ export default function NoteDetail() {
               return (
                 <div className="flex space-x-6" key={section.id}>
                   <div className="w-1/3 space-y-6 border-r pr-6">
-                    <H1>{data.title}</H1>
+                    <H1 className="break-all">{data.title}</H1>
 
                     <Paragraph>{data.description}</Paragraph>
 
@@ -242,7 +247,7 @@ function Section({
       </H2>
 
       <div
-        className="prose lg:prose-md leading-relaxed"
+        className="lg:prose-md prose leading-relaxed"
         dangerouslySetInnerHTML={{ __html: content ?? "" }}
       />
 

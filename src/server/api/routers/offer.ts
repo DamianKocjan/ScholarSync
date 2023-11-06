@@ -50,7 +50,13 @@ export const offerRouter = createTRPCRouter({
           },
         },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
           _count: {
             select: {
               comments: true,

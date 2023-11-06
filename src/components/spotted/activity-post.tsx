@@ -1,79 +1,95 @@
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { useState } from "react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { useFormatRelativeDate } from "~/hooks/use-format-relative-date";
-import { api } from "~/utils/api";
-import { Card, CardHeader, CardContent, CardTitle, CardFooter } from "../ui/card";
-import { Paragraph, SmallText } from "../ui/typography";
-import { Comment } from "./comment"
-interface ActivityPostProps {
-    type: "POST",
-    id: string,
-    title: string,
-    content: string,
-    createdAt: Date,
-    updatedAt: Date,
-    user: { name: string },
-    userId: string,
-    comments: any[],
-    numberOfComments: number,
-    interactions: any[],
-  }
-  export const ActivityPost: React.FC<ActivityPostProps> = ({ title, comments, createdAt, content, user, numberOfComments, id }) => {
-    const DateFormatter = useFormatRelativeDate();
-    const {
-      data: pollOptions,
-      isLoading: pollOptionsLoading,
-      isError: pollOptionsError,
-      error: pollOptionsErrorData,
-      refetch,
-    } = api.poll.options.useQuery(
-      {
-        pollId: id,
-      },
-      {
-        refetchOnWindowFocus: false,
-      }
-    );
-    const totalVotes = useMemo(
-      () =>
-        pollOptions?.result.reduce((acc, option) => acc + option._count.votes, 0) || 0,
-      [pollOptions]
-    );
-    const { mutateAsync, isLoading } = api.poll.vote.useMutation({
-      async onSuccess() {
-        await refetch();
-      },
-    });
-  
-    const [isOpen, setisOpen] = useState(false);
-    return (
-      <Card className="w-fit min-w-[40rem] max-w-sm h-fit bg-slate-100 p-2 mb-5 flex flex-col">
-        <CardHeader>
-          <div className="flex flex-column gap-2 items-center">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            </Avatar>
-            <div className="flex flex-col">
-              <SmallText>{user.name}</SmallText>
-              <SmallText>{DateFormatter(createdAt)}</SmallText>
-            </div>
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Paragraph, SmallText } from "~/components/ui/typography";
+
+const DynamicCommentSection = dynamic(
+  () => import("./comment-section").then((mod) => mod.CommentSection),
+  {
+    ssr: false,
+  },
+);
+const DynamicInteractions = dynamic(
+  () => import("./interactions").then((mod) => mod.Interactions),
+  {
+    ssr: false,
+  },
+);
+
+export interface ActivityPostProps {
+  type: "POST";
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: { name: string | null; image: string | null };
+  _count: {
+    comments: number;
+  };
+}
+
+export function ActivityPost({
+  id,
+  user,
+  createdAt,
+  title,
+  content,
+  _count,
+}: ActivityPostProps) {
+  const [openCommentSection, setOpenCommentSection] = useState(false);
+
+  return (
+    <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col bg-slate-100 p-2">
+      <CardHeader>
+        <div className="flex-column flex items-center gap-2">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={user.image ?? ""} alt={user.name ?? "??"} />
+            <AvatarFallback>
+              {user.name
+                ? user.name?.charAt(0).toUpperCase() +
+                  user.name?.charAt(1).toUpperCase()
+                : "??"}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="flex flex-col">
+            <Paragraph>{user.name}</Paragraph>
+            <SmallText>{createdAt.toLocaleDateString()}</SmallText>
           </div>
-        </CardHeader>
-        <CardContent>
-          <CardTitle>{title}</CardTitle>
-          <Paragraph>{content}</Paragraph>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant='outline'>Like</Button>
-          <Button variant='ghost' onClick={() => setisOpen(!isOpen)}>Comments {numberOfComments}</Button>
-        </CardFooter>
-        {isOpen ? <Card className="w-fit min-w-[38.7rem] justify-center max-w-sm h-fit bg-slate-100 p-2 mb-5 flex flex-col"> 
-          <CardTitle className="m-[1rem]">Comments</CardTitle>
-          {comments.map((comment, index) => (
-            <Comment {...comment} />
-          ))}
-        </Card> : <></>}
-      </Card>
-    );
-  }
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        <CardTitle className="break-all">{title}</CardTitle>
+
+        <Paragraph className="mt-2">{content}</Paragraph>
+      </CardContent>
+
+      <CardFooter className="flex justify-between">
+        <DynamicInteractions model="POST" modelId={id} />
+
+        <Button
+          type="button"
+          variant="ghost"
+          className={openCommentSection ? "" : "text-gray-500"}
+          onClick={() => setOpenCommentSection((val) => !val)}
+        >
+          {_count.comments} Comments
+        </Button>
+      </CardFooter>
+      {openCommentSection ? (
+        <DynamicCommentSection model="POST" modelId={id} />
+      ) : null}
+    </Card>
+  );
+}

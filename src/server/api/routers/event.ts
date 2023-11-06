@@ -86,7 +86,13 @@ export const eventRouter = createTRPCRouter({
           },
         },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
         },
       });
 
@@ -138,7 +144,13 @@ export const eventRouter = createTRPCRouter({
           id: input.id,
         },
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
           _count: {
             select: {
               interestedInEvent: true,
