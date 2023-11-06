@@ -35,7 +35,9 @@ export const feedRouter = createTRPCRouter({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
         exclude: z.string().optional(),
-        type: z.enum(["POST", "OFFER", "EVENT", "POLL"]).optional(),
+        type: z
+          .enum(["POST", "OFFER", "EVENT", "POLL", "RADIO_SUBMISSION"])
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -115,6 +117,24 @@ export const feedRouter = createTRPCRouter({
                 },
               },
             });
+          } else if (contentItem.type === "RADIO_SUBMISSION") {
+            item = await ctx.db.event.findUnique({
+              where: { id: contentItem.id },
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  },
+                },
+                _count: {
+                  select: {
+                    comments: true,
+                  },
+                },
+              },
+            });
           } else {
             item = await ctx.db.poll.findUnique({
               where: { id: contentItem.id },
@@ -157,7 +177,7 @@ export const feedRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        type: z.enum(["POST", "OFFER", "EVENT", "POLL"]),
+        type: z.enum(["POST", "OFFER", "EVENT", "POLL", "RADIO_SUBMISSION"]),
         data: z.object({
           event: z
             .object({
@@ -189,6 +209,13 @@ export const feedRouter = createTRPCRouter({
             .object({
               title: z.string(),
               content: z.string(),
+            })
+            .optional(),
+          radio_submission: z
+            .object({
+              title: z.string(),
+              content: z.string(),
+              link: z.string(),
             })
             .optional(),
         }),
@@ -309,6 +336,32 @@ export const feedRouter = createTRPCRouter({
               id,
               title: data.post.title,
               content: data.post.content,
+              user: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+          }),
+        ]);
+      } else if (type === "RADIO_SUBMISSION") {
+        if (!data.radio_submission) {
+          throw new Error("INVALID_DATA");
+        }
+
+        await ctx.db.$transaction([
+          ctx.db.activity.create({
+            data: {
+              id,
+              type,
+            },
+          }),
+          ctx.db.radioSubmission.create({
+            data: {
+              id,
+              title: data.radio_submission.title,
+              content: data.radio_submission.content,
+              link: data.radio_submission.link,
               user: {
                 connect: {
                   id: ctx.session.user.id,

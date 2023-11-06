@@ -57,6 +57,21 @@ model Note {
     @@index([userId, title])
 }
 
+model RadioSubmission {
+    id               String        @id @default(cuid())
+    title            String
+    content          String
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId           String
+    comments         Comment[]
+    numberOfComments Int           @default(0)
+    // TODO: precalculate number of each interactions (eg. 10 likes, 5 dislikes, 3 love, etc)
+    interactions     Interaction[]
+    link             String
+}
+
 enum NoteSectionType {
     TEXT
     QUIZ
@@ -167,22 +182,24 @@ model Vote {
 
 // TODO: nested comments
 model Comment {
-    id           String        @id @default(cuid())
-    content      String
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @updatedAt
-    user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId       String
-    post         Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
-    postId       String?
-    offer        Offer?        @relation(fields: [offerId], references: [id], onDelete: Cascade)
-    offerId      String?
-    event        Event?        @relation(fields: [eventId], references: [id], onDelete: Cascade)
-    eventId      String?
-    poll         Poll?         @relation(fields: [pollId], references: [id], onDelete: Cascade)
-    pollId       String?
+    id                String           @id @default(cuid())
+    content           String
+    createdAt         DateTime         @default(now())
+    updatedAt         DateTime         @updatedAt
+    user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId            String
+    post              Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId            String?
+    offer             Offer?           @relation(fields: [offerId], references: [id], onDelete: Cascade)
+    offerId           String?
+    event             Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    eventId           String?
+    poll              Poll?            @relation(fields: [pollId], references: [id], onDelete: Cascade)
+    pollId            String?
     // TODO: precalculate number of each interactions (eg. 10 likes, 5 dislikes, 3 love, etc)
-    interactions Interaction[]
+    interactions      Interaction[]
+    radioSubmission   RadioSubmission? @relation(fields: [radioSubmissionId], references: [id], onDelete: Cascade)
+    radioSubmissionId String?
 }
 
 enum InteractionType {
@@ -200,26 +217,29 @@ enum InteractionModel {
     COMMENT
     EVENT
     POLL
+    RADIO_SUBMISSION
 }
 
 model Interaction {
-    id        String           @id @default(cuid())
-    type      InteractionType
-    model     InteractionModel
-    createdAt DateTime         @default(now())
-    updatedAt DateTime         @updatedAt
-    user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId    String
-    post      Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
-    postId    String?
-    offer     Offer?           @relation(fields: [offerId], references: [id], onDelete: Cascade)
-    offerId   String?
-    event     Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
-    eventId   String?
-    poll      Poll?            @relation(fields: [pollId], references: [id], onDelete: Cascade)
-    pollId    String?
-    comment   Comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
-    commentId String?
+    id                String           @id @default(cuid())
+    type              InteractionType
+    model             InteractionModel
+    createdAt         DateTime         @default(now())
+    updatedAt         DateTime         @updatedAt
+    user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId            String
+    post              Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId            String?
+    offer             Offer?           @relation(fields: [offerId], references: [id], onDelete: Cascade)
+    offerId           String?
+    event             Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    eventId           String?
+    poll              Poll?            @relation(fields: [pollId], references: [id], onDelete: Cascade)
+    pollId            String?
+    comment           Comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    commentId         String?
+    radioSubmission   RadioSubmission? @relation(fields: [radioSubmissionId], references: [id], onDelete: Cascade)
+    radioSubmissionId String?
 }
 
 // Necessary for Next auth
@@ -266,6 +286,7 @@ model User {
     interestedInEvents InterestedInEvent[]
     polls              Poll[]
     votes              Vote[]
+    radioSubmissions   RadioSubmission[]
 }
 
 model VerificationToken {

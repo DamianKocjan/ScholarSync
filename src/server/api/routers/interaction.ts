@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-const model = z.enum(["POST", "OFFER", "EVENT", "POLL", "COMMENT"]);
+const model = z.enum(["POST", "OFFER", "EVENT", "POLL", "COMMENT", "RADIO_SUBMISSION"]);
 
 export const interactionRouter = createTRPCRouter({
   get: protectedProcedure
@@ -19,14 +19,15 @@ export const interactionRouter = createTRPCRouter({
         | "offer"
         | "event"
         | "poll"
-        | "comment";
+        | "comment"
+        | "radio_submission";
 
       // TODO: better naming?
       const [likes, hahas, sads, angries, loves, wows] =
         await ctx.db.$transaction([
           ctx.db.interaction.count({
             where: {
-              [model]: {
+              [model === 'radio_submission' ? 'radioSubmission' : model]: {
                 id: modelId,
               },
               type: "LIKE",
@@ -34,7 +35,7 @@ export const interactionRouter = createTRPCRouter({
           }),
           ctx.db.interaction.count({
             where: {
-              [model]: {
+              [model === 'radio_submission' ? 'radioSubmission' : model]: {
                 id: modelId,
               },
               type: "HAHA",
@@ -42,7 +43,7 @@ export const interactionRouter = createTRPCRouter({
           }),
           ctx.db.interaction.count({
             where: {
-              [model]: {
+              [model === 'radio_submission' ? 'radioSubmission' : model]: {
                 id: modelId,
               },
               type: "SAD",
@@ -50,7 +51,7 @@ export const interactionRouter = createTRPCRouter({
           }),
           ctx.db.interaction.count({
             where: {
-              [model]: {
+              [model === 'radio_submission' ? 'radioSubmission' : model]: {
                 id: modelId,
               },
               type: "ANGRY",
@@ -58,7 +59,7 @@ export const interactionRouter = createTRPCRouter({
           }),
           ctx.db.interaction.count({
             where: {
-              [model]: {
+              [model === 'radio_submission' ? 'radioSubmission' : model]: {
                 id: modelId,
               },
               type: "LOVE",
@@ -66,7 +67,7 @@ export const interactionRouter = createTRPCRouter({
           }),
           ctx.db.interaction.count({
             where: {
-              [model]: {
+              [model === 'radio_submission' ? 'radioSubmission' : model]: {
                 id: modelId,
               },
               type: "WOW",
@@ -77,7 +78,7 @@ export const interactionRouter = createTRPCRouter({
       const hasInteracted = ctx.session?.user
         ? await ctx.db.interaction.findFirst({
             where: {
-              [model]: {
+              [model === 'radio_submission' ? 'radioSubmission' : model]: {
                 id: modelId,
               },
               user: {
@@ -137,11 +138,12 @@ export const interactionRouter = createTRPCRouter({
         | "offer"
         | "event"
         | "poll"
-        | "comment";
+        | "comment"
+        | "radio_submission";
 
       const userInteractions = await ctx.db.interaction.findMany({
         where: {
-          [model]: {
+          [model === 'radio_submission' ? 'radioSubmission' : model]: {
             id: modelId,
           },
           model: input.model,
@@ -173,7 +175,7 @@ export const interactionRouter = createTRPCRouter({
       await ctx.db.interaction.create({
         data: {
           model: input.model,
-          [model]: {
+          [model === 'radio_submission' ? 'radioSubmission' : model]: {
             connect: {
               id: modelId,
             },
