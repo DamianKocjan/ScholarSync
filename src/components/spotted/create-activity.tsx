@@ -151,7 +151,7 @@ export function CreateActivity() {
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit}>
-        <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-xl flex-col bg-slate-100 p-2">
+        <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-xl flex-col p-2">
           <CardHeader>
             <div className="flex-column flex items-center justify-between gap-2">
               <div className="flex-column flex items-center">
@@ -182,11 +182,11 @@ export function CreateActivity() {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-40 bg-slate-100">
+                        <SelectTrigger>
                           <SelectValue placeholder="Type" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-slate-100">
+                      <SelectContent>
                         <SelectItem value="POST">Post</SelectItem>
                         <SelectItem value="OFFER">Offer</SelectItem>
                         <SelectItem value="EVENT">Event</SelectItem>

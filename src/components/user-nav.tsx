@@ -1,4 +1,5 @@
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -15,6 +16,7 @@ import {
 
 export function UserNav() {
   const { data: sessionData } = useSession();
+  const { setTheme, theme } = useTheme();
 
   if (!sessionData) {
     return (
@@ -54,6 +56,12 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>Profile</DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          <DropdownMenuItem>Theme: {theme}</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>

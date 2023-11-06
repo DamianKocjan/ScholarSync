@@ -83,7 +83,7 @@ export function ActivityPoll({
   });
 
   return (
-    <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col bg-slate-100 p-2">
+    <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col p-2">
       <CardHeader>
         <div className="flex-column flex items-center gap-2">
           <Avatar className="h-12 w-12">
