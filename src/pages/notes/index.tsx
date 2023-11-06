@@ -35,10 +35,10 @@ export default function Notes() {
               <TabsTrigger value="my">My</TabsTrigger>
             </TabsList>
             <TabsContent value="all" className="space-y-4 divide-y-2">
-              <MyNotes />
+              <AllNotes />
             </TabsContent>
             <TabsContent value="my" className="space-y-4 divide-y-2">
-              <AllNotes />
+              <MyNotes />
             </TabsContent>
           </Tabs>
         </div>
