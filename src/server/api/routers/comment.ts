@@ -8,7 +8,7 @@ export const commentRouter = createTRPCRouter({
       z.object({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
-        model: z.enum(["POST", "OFFER", "EVENT", "POLL"]),
+        model: z.enum(["POST", "OFFER", "EVENT", "POLL", "RADIO_SUBMISSION"]),
         modelId: z.string(),
       }),
     )
@@ -23,7 +23,7 @@ export const commentRouter = createTRPCRouter({
           id: "asc",
         },
         where: {
-          [`${model.toLowerCase()}Id`]: modelId,
+          [`${model === 'RADIO_SUBMISSION' ? 'radioSubmission' : model.toLowerCase()}Id`]: modelId,
         },
         select: {
           id: true,
@@ -54,7 +54,7 @@ export const commentRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        model: z.enum(["POST", "OFFER", "EVENT", "POLL"]),
+        model: z.enum(["POST", "OFFER", "EVENT", "POLL", "RADIO_SUBMISSION"]),
         modelId: z.string(),
         content: z.string(),
       }),
@@ -66,7 +66,7 @@ export const commentRouter = createTRPCRouter({
         ctx.db.comment.create({
           data: {
             content: content,
-            [model.toLowerCase()]: {
+            [model === 'RADIO_SUBMISSION' ? 'radioSubmission' : model.toLowerCase()]: {
               connect: {
                 id: modelId,
               },
@@ -80,7 +80,7 @@ export const commentRouter = createTRPCRouter({
         }),
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        ctx.db[model.toLowerCase()].update({
+        ctx.db[model === 'RADIO_SUBMISSION' ? 'radioSubmission' : model.toLowerCase()].update({
           where: {
             id: modelId,
           },

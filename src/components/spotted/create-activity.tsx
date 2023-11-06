@@ -55,6 +55,12 @@ const createActivitySchema = z.union([
     location: z.string(),
   }),
   z.object({
+    type: z.literal("RADIO_SUBMISSION"),
+    title: z.string(),
+    content: z.string(),
+    link: z.string(),
+  }),
+  z.object({
     type: z.literal("OFFER"),
     title: z.string(),
     description: z.string(),
@@ -100,6 +106,18 @@ export function CreateActivity() {
             post: {
               title: values.title,
               content: values.content,
+            },
+          },
+        });
+        break;
+      case "RADIO_SUBMISSION":
+        await createActivity({
+          type: "RADIO_SUBMISSION",
+          data: {
+            radio_submission: {
+              title: values.title,
+              content: values.content,
+              link: values.link,
             },
           },
         });
@@ -191,6 +209,9 @@ export function CreateActivity() {
                         <SelectItem value="OFFER">Offer</SelectItem>
                         <SelectItem value="EVENT">Event</SelectItem>
                         <SelectItem value="POLL">Poll</SelectItem>
+                        <SelectItem value="RADIO_SUBMISSION">
+                          Radio submission
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -222,6 +243,8 @@ export function CreateActivity() {
               <ActivityOfferForm />
             ) : activityType === "POST" ? (
               <ActivityPostForm />
+            ) : activityType === "RADIO_SUBMISSION" ? (
+              <ActivityRadioSubmissionForm />
             ) : null}
           </CardContent>
 
@@ -613,5 +636,39 @@ function ActivityPostForm() {
         </FormItem>
       )}
     />
+  );
+}
+function ActivityRadioSubmissionForm() {
+  const { control } = useFormContext();
+
+  return (
+    <>
+      <FormField
+        control={control}
+        name="content"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Content</FormLabel>
+            <FormControl>
+              <Textarea {...field} placeholder="What's on your mind?" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="link"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Link</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder="Link..." />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </>
   );
 }
