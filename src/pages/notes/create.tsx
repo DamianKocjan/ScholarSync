@@ -1,4 +1,4 @@
-import Head from "next/head";
+import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { useFieldArray } from "react-hook-form";
 
@@ -74,10 +74,8 @@ export default function NoteCreate() {
 
   return (
     <>
-      <Head>
-        {/* TODO: SEO */}
-        <title>Create note</title>
-      </Head>
+      <NextSeo title="Create note" />
+
       <main className="flex flex-col items-center">
         <Form {...form}>
           <form onSubmit={createNote} className="w-2/3 space-y-6">

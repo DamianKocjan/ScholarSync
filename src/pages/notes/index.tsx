@@ -1,5 +1,7 @@
 import { AlertCircle } from "lucide-react";
+import { NextSeo } from "next-seo";
 import Link from "next/link";
+
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -10,31 +12,35 @@ import { api } from "~/utils/api";
 
 export default function Notes() {
   return (
-    <main className="flex flex-col items-center">
-      <div className="w-2/3 space-y-6">
-        <div className="flex items-center justify-between space-y-2">
-          <H1>Notes</H1>
-          <div className="flex items-center space-x-2">
-            <Button asChild variant="outline">
-              <Link href="/notes/create">Create note</Link>
-            </Button>
-          </div>
-        </div>
+    <>
+      <NextSeo title="Notes" />
 
-        <Tabs defaultValue="all" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="my">My</TabsTrigger>
-          </TabsList>
-          <TabsContent value="all" className="space-y-4 divide-y-2">
-            <MyNotes />
-          </TabsContent>
-          <TabsContent value="my" className="space-y-4 divide-y-2">
-            <AllNotes />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </main>
+      <main className="flex flex-col items-center">
+        <div className="w-2/3 space-y-6">
+          <div className="flex items-center justify-between space-y-2">
+            <H1>Notes</H1>
+            <div className="flex items-center space-x-2">
+              <Button asChild variant="outline">
+                <Link href="/notes/create">Create note</Link>
+              </Button>
+            </div>
+          </div>
+
+          <Tabs defaultValue="all" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="my">My</TabsTrigger>
+            </TabsList>
+            <TabsContent value="all" className="space-y-4 divide-y-2">
+              <MyNotes />
+            </TabsContent>
+            <TabsContent value="my" className="space-y-4 divide-y-2">
+              <AllNotes />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+    </>
   );
 }
 

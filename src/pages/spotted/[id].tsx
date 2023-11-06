@@ -22,6 +22,7 @@ export default function SpottedActivityDetail({
             : activity.description.slice(0, 150) + "..."
         }
       />
+
       <main className="flex flex-col items-center space-y-6">
         <div className="mx-auto flex max-w-xl flex-col">
           <Activity
