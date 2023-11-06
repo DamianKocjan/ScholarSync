@@ -1,5 +1,6 @@
 import { Check, Info } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -104,7 +105,9 @@ export function ActivityPoll({
       </CardHeader>
 
       <CardContent>
-        <CardTitle className="break-all">{title}</CardTitle>
+        <CardTitle className="break-all">
+          <Link href={`/spotted/${id}`}>{title}</Link>
+        </CardTitle>
 
         <Paragraph className="mt-2">{description}</Paragraph>
 

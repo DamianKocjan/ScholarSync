@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -84,7 +85,9 @@ export function ActivityOffer({
       </CardHeader>
 
       <CardContent>
-        <CardTitle className="break-all">{title}</CardTitle>
+        <CardTitle className="break-all">
+          <Link href={`/spotted/${id}`}>{title}</Link>
+        </CardTitle>
 
         <div className="mt-2 flex items-center justify-between">
           <LargeText>{formatter.format(price)}</LargeText>

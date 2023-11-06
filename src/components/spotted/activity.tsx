@@ -1,6 +1,5 @@
 import React from "react";
 
-import Link from "next/link";
 import { ActivityEvent, type ActivityEventProps } from "./activity-event";
 import { ActivityOffer, type ActivityOfferProps } from "./activity-offer";
 import { ActivityPoll, type ActivityPollProps } from "./activity-poll";
@@ -29,25 +28,16 @@ export type ActivityProps = (
 };
 
 export const Activity: React.FC<ActivityProps> = ({ type, ...props }) => {
-  function renderActivity(
-    type: ActivityType,
-    props: Omit<ActivityProps, "type">,
-  ) {
-    if (type === "OFFER") {
-      return <ActivityOffer {...(props as unknown as ActivityOfferProps)} />;
-    } else if (type === "EVENT") {
-      return <ActivityEvent {...(props as ActivityEventProps)} />;
-    } else if (type === "POLL") {
-      return <ActivityPoll {...(props as ActivityPollProps)} />;
-    } else if (type === "RADIO_SUBMISSION") {
-      return (
-        <ActivityRadioSubmission {...(props as ActivityRadioSubmissionProps)} />
-      );
-    }
-    return <ActivityPost {...(props as ActivityPostProps)} />;
+  if (type === "OFFER") {
+    return <ActivityOffer {...(props as unknown as ActivityOfferProps)} />;
+  } else if (type === "EVENT") {
+    return <ActivityEvent {...(props as ActivityEventProps)} />;
+  } else if (type === "POLL") {
+    return <ActivityPoll {...(props as ActivityPollProps)} />;
+  } else if (type === "RADIO_SUBMISSION") {
+    return (
+      <ActivityRadioSubmission {...(props as ActivityRadioSubmissionProps)} />
+    );
   }
-
-  return (
-    <Link href={`/spotted/${props.id}`}>{renderActivity(type, props)}</Link>
-  );
+  return <ActivityPost {...(props as ActivityPostProps)} />;
 };
