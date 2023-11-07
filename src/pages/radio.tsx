@@ -130,11 +130,12 @@ function CreateRadioSubmission() {
     schema: createActivityRadioSubmissionSchema,
   });
   const router = useRouter();
-  const { mutateAsync: createActivity } = api.feed.create.useMutation({
-    async onSuccess(data) {
-      await router.push(`/spotted/${data.id}`);
-    },
-  });
+  const { mutateAsync: createActivity, isLoading } =
+    api.feed.create.useMutation({
+      async onSuccess(data) {
+        await router.push(`/spotted/${data.id}`);
+      },
+    });
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await createActivity({
@@ -194,7 +195,13 @@ function CreateRadioSubmission() {
           </CardContent>
 
           <CardFooter>
-            <Button variant="default" type="submit" className="w-full">
+            <Button
+              variant="default"
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4" /> : null}
               Submit
             </Button>
           </CardFooter>
