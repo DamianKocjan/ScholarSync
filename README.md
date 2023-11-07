@@ -1,28 +1,86 @@
 # ScholarSync
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Scholar Sync is an application that combines features from various disconnected applications, enriching them with new functionalities. This integration simplifies and enhances time and school life management for both students and teachers.
 
-## What's next? How do I make an app with this?
+## Screenshots
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+![Home page](./docs/home_page.png)
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Tech Stack
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- [NextJS](https://nextjs.org/)
+- [ReactJS](https://react.dev/)
+- [Typescript](https://www.typescriptlang.org/)
+- [Tailwindcss](https://tailwindcss.com/)
+- [Postgresql](https://www.postgresql.org/)
 
-## Learn More
+## Features
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Our application offers a range of useful features:
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- Notes Section: Users can create, edit, and store notes effortlessly. The intuitive interface allows students and teachers to manage their educational materials effectively. The "Notes" section supports multimedia attachments, including images, audio files, and videos, aiding in better information delivery and comprehension.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- Spotted Section: This central part of the application enables students to publish diverse content such as announcements, events, polls, and commercial offers. It encourages interaction among students, allowing them to comment and react to posts, fostering better communication and exchange of opinions within the community. The feature promotes collaboration by facilitating the sharing of ideas and projects.
 
-## How do I deploy this?
+- Radio Node: Students can add their favorite music tracks to the school radio station, influencing the musical program in the school. They can share songs by providing links to music streaming sources. This functionality promotes musical creativity and diversity in the school, enabling active student participation in creating music for the school radio.
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- Marketplace: Users can post education-related advertisements, offer tutoring services, and buy/sell or exchange educational materials like books and textbooks. The search functionality simplifies browsing available offers, promoting knowledge exchange and saving costs on essential materials. It creates a more integrated educational environment.
+
+## Roadmap
+
+### We have exciting ideas to further improve the application, including:
+
+- Anonymous posts
+- Voting for songs on the school radio
+- Sorting posts and notes
+
+### Implementation and Collaboration
+
+The simplicity of the technologies used makes the application easy to implement for any interested school. While schools are the primary target, modifications can allow implementation in various businesses, expanding the pool of potential partners and collaborators.
+
+Scholar Sync significantly enhances students' lives by providing a platform that promotes effective learning, communication, and collaboration. With its intuitive features and potential for future enhancements, Scholar Sync is poised to create a more connected and interactive educational community.
+
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+- `DATABASE_URL` Postgresql database url
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` [Google OAuth 2.0 Client ID](https://cloud.google.com/docs/authentication?hl=en_GB)
+- `UPLOADTHING_SECRET` [uploadthing](https://uploadthing.com/) app secret for file upload
+
+## Run Locally
+
+Clone the project
+
+```bash
+git clone https://github.com/DamianKocjan/ScholarSync.git
+```
+
+Go to the project directory
+
+```bash
+cd my-ScholarSync
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Fill environment variables in `.env` file
+
+Start application
+
+```bash
+npm run dev
+```
+
+## Authors
+
+- [Jan Pałka](https://www.github.com/GeneralKartoniarz)
+- [Damian Kocjan](https://www.github.com/DamianKocjan)
+
+## License
+
+[MIT](https://github.com/DamianKocjan/ScholarSync/blob/main/LICENSE)
