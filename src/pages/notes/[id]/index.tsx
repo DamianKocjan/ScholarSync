@@ -120,7 +120,7 @@ export default function NoteDetail() {
           if (idx === 0) {
             return (
               <div
-                className="flex flex-col sm:flex-row sm:space-x-6"
+                className="flex w-full flex-col sm:flex-row sm:space-x-6"
                 key={section.id}
               >
                 <div className="space-y-6 sm:w-1/3 sm:border-r sm:pr-6">
