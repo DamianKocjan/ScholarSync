@@ -1,8 +1,9 @@
-import { AlertCircle, Info, Loader2 } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import dynamic from "next/dynamic";
 import React from "react";
 
 import { api } from "~/utils/api";
+import { Loader } from "../loader";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Activity, type ActivityProps, type ActivityType } from "./activity";
 import { InfiniteLoader } from "./infinite-loader";
@@ -43,14 +44,11 @@ export const Feed: React.FC<FeedProps> = ({ exclude, type, withCreate }) => {
   );
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4">
+    <div className="mx-auto flex max-w-xl flex-col space-y-6">
       {withCreate && <DynamicCreateActivity />}
 
       {isLoading ? (
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Loading...
-        </div>
+        <Loader />
       ) : isError ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />

@@ -1,11 +1,12 @@
-import { AlertCircle, Download, Share2 } from "lucide-react";
+import { Download, Share2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
+import { Error } from "~/components/error";
+import { Loader } from "~/components/loader";
 
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -105,111 +106,106 @@ export default function NoteDetail() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
   if (isError) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{error?.message}</AlertDescription>
-      </Alert>
-    );
+    return <Error title="Error" description={error?.message} />;
   }
   return (
     <>
       <NextSeo title={data.title} description={data.description ?? ""} />
 
-      <main className="flex flex-col items-center">
-        <div className="w-2/3 space-y-6">
-          {data.sections.map((section, idx) => {
-            if (idx === 0) {
-              return (
-                <div className="flex space-x-6" key={section.id}>
-                  <div className="w-1/3 space-y-6 border-r pr-6">
-                    <H1 className="break-all">{data.title}</H1>
+      <main className="mx-auto flex flex-col items-center space-y-6 sm:w-2/3">
+        {data.sections.map((section, idx) => {
+          if (idx === 0) {
+            return (
+              <div
+                className="flex flex-col sm:flex-row sm:space-x-6"
+                key={section.id}
+              >
+                <div className="space-y-6 sm:w-1/3 sm:border-r sm:pr-6">
+                  <H1 className="break-all">{data.title}</H1>
 
-                    <Paragraph>{data.description}</Paragraph>
+                  <Paragraph>{data.description}</Paragraph>
 
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage
-                          src={data.user.image ?? undefined}
-                          alt={data.user.name ?? undefined}
-                        />
-                        <AvatarFallback>
-                          {data.user.name
-                            ? data.user.name?.charAt(0).toUpperCase() +
-                              data.user.name?.charAt(1).toUpperCase()
-                            : "??"}
-                        </AvatarFallback>
-                      </Avatar>
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage
+                        src={data.user.image ?? undefined}
+                        alt={data.user.name ?? undefined}
+                      />
+                      <AvatarFallback>
+                        {data.user.name
+                          ? data.user.name?.charAt(0).toUpperCase() +
+                            data.user.name?.charAt(1).toUpperCase()
+                          : "??"}
+                      </AvatarFallback>
+                    </Avatar>
 
-                      <LargeText>
-                        <Link href="">{data.user.name}</Link>
-                      </LargeText>
+                    <LargeText>
+                      <Link href="">{data.user.name}</Link>
+                    </LargeText>
+                  </div>
+
+                  {sessionData?.user.id === data.user.id ? (
+                    <div className="flex gap-4">
+                      <Button asChild className="w-full">
+                        <Link href={`/notes/${id}/update`}>Edit</Link>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        className="w-full"
+                        onClick={async () => await deleteNote({ id })}
+                      >
+                        Remove
+                      </Button>
                     </div>
+                  ) : null}
 
-                    {sessionData?.user.id === data.user.id ? (
-                      <div className="flex gap-4">
-                        <Button asChild className="w-full">
-                          <Link href={`/notes/${id}/update`}>Edit</Link>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          className="w-full"
-                          onClick={async () => await deleteNote({ id })}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    ) : null}
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={shareNote}
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share
+                  </Button>
 
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={shareNote}
-                    >
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <MutedText>
+                          Created {formatter(data.createdAt)}.
+                        </MutedText>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Created {data.createdAt.toLocaleDateString()}.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
+                  {data.updatedAt.getTime() !== data.createdAt.getTime() ? (
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <MutedText>
-                            Created {formatter(data.createdAt)}.
+                            Updated {formatter(data.updatedAt)}.
                           </MutedText>
                         </TooltipTrigger>
                         <TooltipContent>
-                          Created {data.createdAt.toLocaleDateString()}.
+                          Updated {data.updatedAt.toLocaleDateString()}.
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-
-                    {data.updatedAt.getTime() !== data.createdAt.getTime() ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <MutedText>
-                              Updated {formatter(data.updatedAt)}.
-                            </MutedText>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Updated {data.updatedAt.toLocaleDateString()}.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : null}
-                  </div>
-                  <Section {...section} key={section.id} />
+                  ) : null}
                 </div>
-              );
-            }
-            return <Section {...section} key={section.id} />;
-          })}
-        </div>
+                <Section {...section} key={section.id} />
+              </div>
+            );
+          }
+          return <Section {...section} key={section.id} />;
+        })}
       </main>
     </>
   );

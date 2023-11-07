@@ -76,7 +76,7 @@ export function NoteSection({
   return (
     <>
       <div
-        className="relative space-y-6"
+        className="relative w-full space-y-6"
         ref={(node) => preview(drop(node))}
         style={{
           opacity: isDragging ? 0.5 : 1,

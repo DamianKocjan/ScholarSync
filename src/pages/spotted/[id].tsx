@@ -26,19 +26,17 @@ export default function SpottedActivityDetail({
         }
       />
 
-      <main className="flex flex-col items-center space-y-6">
-        <div className="mx-auto flex max-w-xl flex-col">
-          <Activity
-            {...activity}
-            createdAt={new Date(activity.createdAt)}
-            updatedAt={new Date(activity.updatedAt)}
-            // @ts-expect-error this is fine
-            from={"from" in activity ? new Date(activity.from) : undefined}
-            // @ts-expect-error this is fine
-            to={"to" in activity ? new Date(activity.to) : undefined}
-            withRemove
-          />
-        </div>
+      <main className="mx-auto flex flex-col items-center space-y-6 sm:w-2/3">
+        <Activity
+          {...activity}
+          createdAt={new Date(activity.createdAt)}
+          updatedAt={new Date(activity.updatedAt)}
+          // @ts-expect-error this is fine
+          from={"from" in activity ? new Date(activity.from) : undefined}
+          // @ts-expect-error this is fine
+          to={"to" in activity ? new Date(activity.to) : undefined}
+          withRemove
+        />
 
         <Feed exclude={activity.id} />
       </main>

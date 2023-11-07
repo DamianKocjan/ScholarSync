@@ -185,8 +185,8 @@ export function CreateActivity() {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit}>
-        <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-xl flex-col p-2">
+      <form onSubmit={handleSubmit} className="w-full sm:max-w-xl">
+        <Card className="p-2">
           <CardHeader>
             <div className="flex-column flex items-center justify-between gap-2">
               <div className="flex-column flex items-center">
@@ -483,7 +483,7 @@ export function ActivityOfferForm() {
                   ) : (
                     <ImagePlus className="mx-auto h-12 w-12" strokeWidth="1" />
                   )}
-                  <Paragraph className="flex items-center">
+                  <Paragraph className="flex flex-col items-center sm:flex-row">
                     <FormLabel htmlFor="image">
                       <span className="text-primary">
                         Upload a image &nbsp;
@@ -557,7 +557,7 @@ export function ActivityOfferForm() {
                   defaultValue={field.value}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select condition" />
+                    <SelectValue placeholder="Condition" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="NEW">New</SelectItem>

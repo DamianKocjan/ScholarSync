@@ -69,7 +69,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <SessionProvider session={session}>
           <DndProvider backend={HTML5Backend}>
             <div className="border-b">
-              <div className="flex h-16 items-center px-4">
+              <div className="flex h-16 items-center px-2 sm:px-4">
                 <MainNav className="mx-6" />
                 <div className="ml-auto flex items-center space-x-4">
                   <UserNav />

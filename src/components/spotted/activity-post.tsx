@@ -53,7 +53,7 @@ export function ActivityPost({
   const [openCommentSection, setOpenCommentSection] = useState(false);
 
   return (
-    <Card className="mb-5 flex h-fit w-fit min-w-[40rem] max-w-sm flex-col p-2">
+    <Card className="mb-5 w-full p-2 sm:max-w-xl">
       <CardHeader>
         <div className="flex-column flex items-center gap-2">
           <Avatar className="h-12 w-12">

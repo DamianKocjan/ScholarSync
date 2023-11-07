@@ -79,13 +79,16 @@ export default function NoteCreate() {
     <>
       <NextSeo title="Create note" />
 
-      <main className="flex flex-col items-center">
+      <main className="mx-auto flex flex-col items-center space-y-6 sm:w-2/3">
         <Form {...form}>
-          <form onSubmit={createNote} className="w-2/3 space-y-6">
+          <form onSubmit={createNote} className="space-y-6">
             {sections.fields.map((field, index) => {
               if (index === 0) {
                 return (
-                  <div className="flex space-x-6" key={field.id}>
+                  <div
+                    className="flex flex-col sm:flex-row sm:space-x-6"
+                    key={field.id}
+                  >
                     <NoteDetails />
                     <div className="relative w-full">
                       <NoteSection

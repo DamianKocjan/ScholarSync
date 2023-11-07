@@ -10,7 +10,7 @@ export default function Home() {
     <>
       <NextSeo title="Spotted" />
 
-      <main className="flex flex-col items-center">
+      <main className="mx-auto flex flex-col items-center space-y-6 sm:w-2/3">
         <Feed withCreate />
       </main>
     </>

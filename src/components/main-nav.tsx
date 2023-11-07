@@ -23,11 +23,15 @@ export function MainNav({
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
       {...props}
     >
-      <Link className="mr-6 flex items-center space-x-2" href="/">
+      <Link className="mr-4 flex items-center space-x-2 sm:mr-6" href="/">
         <img
-          src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"}
+          src={
+            theme === "dark" || systemTheme === "dark"
+              ? "/logo-dark.png"
+              : "/logo-light.png"
+          }
           alt="ScholarSync logo"
-          className="h-10"
+          className="h-10 w-10"
         />
         <span className="hidden font-bold sm:inline-block">Scholar Sync</span>
       </Link>
@@ -35,7 +39,7 @@ export function MainNav({
       <Link
         href="/"
         className={cn(
-          "text-sm font-medium transition-colors hover:text-primary",
+          "hidden text-sm font-medium transition-colors hover:text-primary sm:block",
           isActive("/") ? "" : "text-muted-foreground",
         )}
       >
@@ -75,7 +79,8 @@ export function MainNav({
           isActive("/radio") ? "" : "text-muted-foreground",
         )}
       >
-        School Radio
+        <span className="hidden sm:block">School Radio</span>
+        <span className="sm:hidden">Radio</span>
       </Link>
     </nav>
   );

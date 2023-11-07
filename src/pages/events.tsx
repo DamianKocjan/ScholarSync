@@ -1,6 +1,5 @@
 import { addMonths, format, getDay, parse, startOfWeek } from "date-fns";
 import { enUS } from "date-fns/locale";
-import { Info, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import { useCallback, useMemo, useState } from "react";
@@ -12,8 +11,9 @@ import {
 } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
+import { Error } from "~/components/error";
+import { Loader } from "~/components/loader";
 import { ActivityEvent } from "~/components/spotted/activity-event";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -161,27 +161,23 @@ export default function Events() {
         id={eventId}
       />
 
-      <main className="flex flex-col items-center">
-        <div className="w-2/3 space-y-6">
-          <div className="flex items-center justify-between space-y-2">
-            <H1>Events</H1>
-          </div>
+      <main className="mx-auto flex flex-col items-center space-y-6 sm:w-2/3">
+        <H1>Events</H1>
 
-          <div className="h-[700px]">
-            <Calendar
-              defaultDate={defaultDate}
-              defaultView={Views.MONTH}
-              views={["month", "week", "day"]}
-              // @ts-expect-error TODO: fix types
-              events={events}
-              localizer={localizer}
-              onSelectEvent={handleSelectEvent}
-              onSelectSlot={handleSelectSlot}
-              selectable
-              scrollToTime={scrollToTime}
-              onRangeChange={handleRangeChange}
-            />
-          </div>
+        <div className="h-[500px]">
+          <Calendar
+            defaultDate={defaultDate}
+            defaultView={Views.MONTH}
+            views={["month", "week", "day"]}
+            // @ts-expect-error TODO: fix types
+            events={events}
+            localizer={localizer}
+            onSelectEvent={handleSelectEvent}
+            onSelectSlot={handleSelectSlot}
+            selectable
+            scrollToTime={scrollToTime}
+            onRangeChange={handleRangeChange}
+          />
         </div>
       </main>
     </>
@@ -342,17 +338,9 @@ export const EventDetailPopup: React.FC<EventDetailPopupProps> = ({
         </DialogHeader>
         <div className="py-4">
           {isLoading ? (
-            <div className="flex items-center justify-center">
-              <Loader2 className="h-4 w-4 animate-spin" />
-            </div>
+            <Loader />
           ) : isError ? (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertTitle>Something went wrong!</AlertTitle>
-              <AlertDescription>
-                {error?.message ?? String(error)}
-              </AlertDescription>
-            </Alert>
+            <Error title="Something went wrong!" description={error?.message} />
           ) : data ? (
             <ActivityEvent {...data} />
           ) : null}

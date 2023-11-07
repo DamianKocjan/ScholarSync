@@ -1,10 +1,12 @@
-import { AlertCircle, Info, Loader2 } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { z } from "zod";
+import { Error } from "~/components/error";
+import { Loader } from "~/components/loader";
 
 import { Activity } from "~/components/spotted/activity";
 import { ActivityOfferForm } from "~/components/spotted/create-activity";
@@ -71,7 +73,8 @@ export default function Marketplace() {
   return (
     <>
       <NextSeo title="Marketplace" />
-      <main className="mx-auto flex w-2/3 flex-col items-center space-y-6">
+
+      <main className="mx-auto flex flex-col items-center space-y-6 sm:w-2/3">
         <div className="flex items-center justify-between">
           <H1>Marketplace</H1>
         </div>
@@ -96,8 +99,8 @@ function Filter({ handleSubmit }: FilterProps) {
   const { control } = useFormContext();
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Card className="min-w-[40rem] max-w-xl p-2">
+    <form onSubmit={handleSubmit} className="w-full sm:max-w-xl">
+      <Card className="p-2">
         <CardHeader>
           <CardTitle>Filters</CardTitle>
         </CardHeader>
@@ -117,7 +120,7 @@ function Filter({ handleSubmit }: FilterProps) {
             )}
           />
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-2">
             <FormField
               control={control}
               name="minPrice"
@@ -253,16 +256,9 @@ export const Feed: React.FC<FeedProps> = ({ filters }) => {
   return (
     <div className="flex flex-col space-y-6">
       {isLoading ? (
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Loading...
-        </div>
+        <Loader />
       ) : isError ? (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error?.message}</AlertDescription>
-        </Alert>
+        <Error title="Error" description={error?.message} />
       ) : data?.pages?.[0]?.items.length === 0 ? (
         <Alert>
           <Info className="h-4 w-4" />
@@ -330,8 +326,8 @@ function CreateOffer() {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit}>
-        <Card className="min-w-[40rem] max-w-xl p-2">
+      <form onSubmit={handleSubmit} className="w-full sm:max-w-xl">
+        <Card className="p-2">
           <CardHeader>
             <div className="flex-column flex items-center justify-between gap-2">
               <div className="flex-column flex items-center">

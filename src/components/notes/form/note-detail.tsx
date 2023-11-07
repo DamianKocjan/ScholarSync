@@ -15,7 +15,7 @@ export function NoteDetails() {
   const { control } = useFormContext();
 
   return (
-    <div className="w-1/3 space-y-6 border-r pr-6">
+    <div className="space-y-6 sm:w-1/3 sm:border-r sm:pr-6">
       <FormField
         control={control}
         name="title"

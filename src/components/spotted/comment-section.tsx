@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useCallback } from "react";
@@ -21,6 +21,7 @@ import { MutedText, Paragraph, SmallText } from "~/components/ui/typography";
 import { useForm } from "~/hooks/use-form";
 import { useFormatRelativeDate } from "~/hooks/use-format-relative-date";
 import { api } from "~/utils/api";
+import { Loader } from "../loader";
 import { type ActivityType } from "./activity";
 
 interface CommentsProps {
@@ -59,10 +60,7 @@ export const CommentSection: React.FC<CommentsProps> = ({ model, modelId }) => {
     <div className="space-y-6 px-4 py-4 sm:px-6">
       <CommentInput model={model} modelId={modelId} refetch={refetchComments} />
       {isLoading ? (
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Loading...
-        </div>
+        <Loader />
       ) : isError ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -81,11 +79,7 @@ export const CommentSection: React.FC<CommentsProps> = ({ model, modelId }) => {
             </Button>
           )}
 
-          {isFetchingNextPage && (
-            <div className="flex items-center justify-center">
-              <Loader2 className="h-4 w-4 animate-spin" />
-            </div>
-          )}
+          {isFetchingNextPage && <Loader />}
         </div>
       ) : null}
     </div>
