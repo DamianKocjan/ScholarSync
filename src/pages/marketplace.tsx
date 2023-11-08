@@ -254,7 +254,7 @@ export const Feed: React.FC<FeedProps> = ({ filters }) => {
   }, [filters, refetch]);
 
   return (
-    <div className="flex w-full flex-col space-y-6">
+    <div className="flex w-full flex-col space-y-6 items-center">
       {isLoading ? (
         <Loader />
       ) : isError ? (
